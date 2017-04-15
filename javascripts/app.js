@@ -1,6 +1,11 @@
 var game = {
   board: [],
   turn: 1,
+  p1: '',
+  p2: '',
+  p1wins: 0,
+  p2wins: 0,
+  name: '',
   createGame: function(){
     for (var i = 0; i < 9; i++){
       this.board.push({
