@@ -6,6 +6,11 @@ var game = {
   p1wins: 0,
   p2wins: 0,
   name: '',
+  updateInfo: function(name, p1, p2){
+    this.name = name;
+    this.p1 = p1;
+    this.p2 = p2;
+  },
   createGame: function(){
     for (var i = 0; i < 9; i++){
       this.board.push({
@@ -68,13 +73,9 @@ var game = {
 };
 
 var handlers = {
-  // Change player name
-  changePlayerName: function(player, name){
-
-  },
-  // Change game name
-  changeGameName: function(name){
-
+  updateInfo: function(name, p1, p2){
+    game.updateInfo(name, p1, p2);
+    view.updateInfo(game.name, game.p1, game.p2);
   },
   // New game
   startGame: function(){
@@ -128,6 +129,11 @@ var view = {
     container.appendChild(board);
     container.appendChild(player2Data);
     this.createSettingsButton(header);
+  },
+  updateInfo: function(name, p1, p2){
+    var gameName = document.querySelector('h1');
+    gameName.textContent = name;
+    this.toggleOverlay();
   },
   changeBox: function(square){
     var box = game.board;

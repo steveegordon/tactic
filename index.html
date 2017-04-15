@@ -5,7 +5,14 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<div id="overlay"></div>
+<div id="overlay">
+  <form onSubmit="handlers.updateInfo(gameName.value, p1Name.value, p2name.value); return false;">
+    <input type="text" name="gameName" value=''>
+    <input type="text" name="p1Name" value=''>
+    <input type="text" name="p2name" value=''>
+    <input type="submit" value="Submit">
+  </form>
+</div>
 <header>
 </header>
 <div id="container">
