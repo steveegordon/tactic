@@ -67,3 +67,26 @@ var game = {
     else {return;}
   }
 };
+
+var handlers = {
+  // Change player name
+  changePlayerName: function(){
+
+  },
+  // Change game name
+  changeGameName: function(){
+
+  },
+  // New game
+  newGame: function(){
+
+  },
+  // Reset game
+  resetGame: function(){
+
+  },
+  // Take turn
+  takeTurn: function(){
+    
+  }
+};
