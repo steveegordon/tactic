@@ -60,35 +60,27 @@ var game = {
   checkWin: function(player){
     var square = this.currentGame.board;
     if (square[0].user === square[1].user && square[2].user === square[0].user && square[0].user !== 0){
-      console.log(player + " wins!");
       this.addWin(player);
       handlers.resetGame();}
     else if (square[3].user === square[4].user && square[4].user === square[5].user && square[3].user !== 0){
-      console.log(player + " wins!");
       this.addWin(player);
       handlers.resetGame();}
     else if (square[6].user === square[7].user && square[7].user === square[8].user && square[6].user !== 0){
-      console.log(player + " wins!");
       this.addWin(player);
       handlers.resetGame();}
     else if (square[0].user === square[3].user && square[6].user === square[0].user && square[0].user !== 0){
-      console.log(player + " wins!");
       this.addWin(player);
       handlers.resetGame();}
     else if (square[1].user === square[4].user && square[7].user === square[1].user && square[1].user !== 0){
-      console.log(player + " wins!");
       this.addWin(player);
       handlers.resetGame();}
     else if (square[2].user === square[5].user && square[8].user === square[2].user && square[2].user !== 0){
-      console.log(player + " wins!");
       this.addWin(player);
       handlers.resetGame();}
     else if (square[0].user === square[4].user && square[8].user === square[0].user && square[0].user !== 0){
-      console.log(player + " wins!");
       this.addWin(player);
       handlers.resetGame();}
     else if (square[6].user === square[4].user && square[2].user === square[6].user && square[6].user !== 0){
-      console.log(player + " wins!");
       this.addWin(player);
       handlers.resetGame();}
     else if (this.currentGame.totalTurn === 9){confirm("Cats Game. Play again?");
@@ -111,7 +103,7 @@ var game = {
 var handlers = {
   updateInfo: function(name, p1, p2){
     game.updateInfo(name, p1, p2);
-    view.updateInfo(game.name, game.p1, game.p2);
+    view.updateInfo(game.currentGame.name, game.currentGame.p1, game.currentGame.p2);
   },
   // New game
   startGame: function(){
@@ -137,6 +129,10 @@ var handlers = {
       var square = event.target;
       handlers.takeTurn(square.id, square);
     });
+  },
+  quitGame: function(){
+    game.quitGame();
+    view.quitGame();
   }
 };
 
@@ -166,6 +162,17 @@ var view = {
     container.appendChild(player2Data);
     this.createSettingsButton(header);
   },
+  quitGame: function(){
+    var container = document.getElementById('container');
+    var header = document.querySelector('header');
+    while(container.hasChildNodes()){
+      container.removeChild(container.lastChild);
+    }
+    while(header.hasChildNodes()){
+      header.removeChild(header.lastChild);
+    }
+    container.appendChild(this.createStartButton());
+  },
   updateInfo: function(name, p1, p2){
     var gameName = document.querySelector('h1');
     gameName.textContent = name;
@@ -185,6 +192,15 @@ var view = {
     boxes.forEach(function(box){
       box.classList.remove('p1', 'p2');
     });
+  },
+  createStartButton: function(){
+    var startGameButton = document.createElement('button');
+    startGameButton.id = 'startGameButton';
+    startGameButton.textContent = 'Start Game';
+    startGameButton.onclick = function(){
+      handlers.startGame();
+    };
+    return  startGameButton;
   },
   createSettingsButton: function(header){
     var settingsButton = document.createElement('button');
