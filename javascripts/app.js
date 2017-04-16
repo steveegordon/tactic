@@ -160,3 +160,56 @@ var view = {
    document.body.classList.toggle('overlay');
   }
 };
+
+
+
+var auth = {
+  users: [],
+  currentUser: null,
+  loggedIn: function(){
+  if (this.currentUser){
+    console.log('logged in');
+  }
+  else {
+    console.log('please log in');
+  }
+  },
+  newUser: function(name, password){
+    var user = {
+      name: name,
+      password: password
+    };
+    this.users.push(user);
+  },
+  logIn: function(user, password){
+    var checkUser = this.findUser(user);
+    if (checkUser){
+      if (checkUser.password === password){
+        console.log('welcome user');
+        this.currentUser = checkUser;
+        this.loggedIn();
+      }
+      else {
+        console.log('incorrect password');
+      }
+    }
+    else {
+      console.log('no user found');
+    }
+  },
+  logout: function(){
+    this.currentUser = null;
+    this.loggedIn();
+  },
+  findUser: function(input){
+    for (var i = 0; i < this.users.length; i++){
+      if (this.users[i].name === input){
+        return this.users[i];
+      }
+    }
+  }
+};
+
+window.onload = function(){
+  auth.loggedIn();
+};

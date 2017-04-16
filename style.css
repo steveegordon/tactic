@@ -114,6 +114,11 @@ div#overlay {
   background-color: purple;
 }
 
+button#startGameButton {
+  height: 50px;
+  margin: auto auto;
+}
+
 body.overlay>div#overlay {
   left: 0;
 }
