@@ -1,74 +1,110 @@
 var game = {
-  board: [],
-  turn: 1,
-  p1: '',
-  p2: '',
-  p1wins: 0,
-  p2wins: 0,
-  name: '',
+  games: [],
+  currentGame: null,
   updateInfo: function(name, p1, p2){
-    this.name = name;
-    this.p1 = p1;
-    this.p2 = p2;
+    this.currentGame.name = name;
+    this.currentGame.p1 = p1;
+    this.currentGame.p2 = p2;
   },
   createGame: function(){
+    var newGame = {
+      board:[],
+      totalTurn: 0,
+      turn: 1,
+      p1: '',
+      p2: '',
+      p1wins: 0,
+      p2wins: 0,
+      name: Math.floor((Math.random() * 10000) + 1),
+    };
     for (var i = 0; i < 9; i++){
-      this.board.push({
+      newGame.board.push({
         square: i,
         user: 0
       });
     }
+    this.games.push(newGame);
+    this.selectGame(newGame.name);
+  },
+  selectGame: function(name){
+    for (var i = 0; i < this.games.length; i++){
+      if (this.games[i].name === name) {
+        this.currentGame = this.games[i];
+      }
+    }
   },
   resetGame: function(){
-    this.board.forEach(function(box){
+    this.currentGame.board.forEach(function(box){
       box.user = 0;
     });
+    this.currentGame.totalTurn = 0;
   },
   changeBox: function(number){
-    var square = this.board[number];
-    var playerTurn = this.turn;
+    var square = this.currentGame.board[number];
+    var playerTurn = this.currentGame.turn;
     if (square.user === 0){
       if (playerTurn === 1){
         square.user = 1;
-        this.turn = 2;
+        this.currentGame.turn = 2;
+        this.currentGame.totalTurn++;
         this.checkWin(playerTurn);
       }
       else {
         square.user = 2;
-        this.turn = 1;
+        this.currentGame.turn = 1;
+        this.currentGame.totalTurn++;
         this.checkWin(playerTurn);
       }
     }
   },
   checkWin: function(player){
-    var square = this.board;
+    var square = this.currentGame.board;
     if (square[0].user === square[1].user && square[2].user === square[0].user && square[0].user !== 0){
       console.log(player + " wins!");
+      this.addWin(player);
       handlers.resetGame();}
     else if (square[3].user === square[4].user && square[4].user === square[5].user && square[3].user !== 0){
       console.log(player + " wins!");
+      this.addWin(player);
       handlers.resetGame();}
     else if (square[6].user === square[7].user && square[7].user === square[8].user && square[6].user !== 0){
       console.log(player + " wins!");
+      this.addWin(player);
       handlers.resetGame();}
     else if (square[0].user === square[3].user && square[6].user === square[0].user && square[0].user !== 0){
       console.log(player + " wins!");
+      this.addWin(player);
       handlers.resetGame();}
     else if (square[1].user === square[4].user && square[7].user === square[1].user && square[1].user !== 0){
       console.log(player + " wins!");
+      this.addWin(player);
       handlers.resetGame();}
     else if (square[2].user === square[5].user && square[8].user === square[2].user && square[2].user !== 0){
       console.log(player + " wins!");
+      this.addWin(player);
       handlers.resetGame();}
     else if (square[0].user === square[4].user && square[8].user === square[0].user && square[0].user !== 0){
       console.log(player + " wins!");
+      this.addWin(player);
       handlers.resetGame();}
     else if (square[6].user === square[4].user && square[2].user === square[6].user && square[6].user !== 0){
       console.log(player + " wins!");
+      this.addWin(player);
       handlers.resetGame();}
-    else if (this.turn === 9){confirm("Cats Game. Play again?");
+    else if (this.currentGame.totalTurn === 9){confirm("Cats Game. Play again?");
       handlers.resetGame();}
     else {return;}
+  },
+  addWin: function(player){
+    if (player === 1){
+      this.currentGame.p1wins++;
+    }
+    else {
+      this.currentGame.p2wins++;
+    }
+  },
+  quitGame: function(){
+    this.currentGame = null;
   }
 };
 
@@ -117,7 +153,7 @@ var view = {
     player2Data.className = 'playerData';
     var board = document.createElement('div');
     board.id = 'board';
-    game.board.forEach(function(square, index){
+    game.currentGame.board.forEach(function(square, index){
       var box = document.createElement('div');
       box.id = index;
       box.className = 'square';
@@ -136,8 +172,8 @@ var view = {
     this.toggleOverlay();
   },
   changeBox: function(square){
-    var box = game.board;
-    if (game.turn === 1){
+    var box = game.currentGame.board;
+    if (game.currentGame.turn === 1){
       square.classList.add('p1');
     }
     else {
