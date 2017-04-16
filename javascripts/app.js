@@ -101,6 +101,15 @@ var game = {
 };
 
 var handlers = {
+  logIn: function(name, password){
+    auth.logIn(name, password);
+    if (auth.loggedIn()){
+      view.toggleAuthOverlay(true);
+      view.displayUserData();
+    }
+    else{view.toggleAuthOverlay(false);
+    }
+  },
   updateInfo: function(name, p1, p2){
     game.updateInfo(name, p1, p2);
     view.updateInfo(game.currentGame.name, game.currentGame.p1, game.currentGame.p2);
@@ -109,7 +118,7 @@ var handlers = {
   startGame: function(){
     game.createGame();
     view.displayGame();
-    this.boardClicks();
+    view.setUpEventListeners();
   },
   // Reset game
   resetGame: function(){
@@ -123,20 +132,21 @@ var handlers = {
       game.changeBox(id);
     }
   },
-  boardClicks: function(){
-    var area = document.getElementById('board');
-    area.addEventListener('click', function(event){
-      var square = event.target;
-      handlers.takeTurn(square.id, square);
-    });
-  },
   quitGame: function(){
     game.quitGame();
     view.quitGame();
+  },
+  logout: function(){
+    game.quitGame();
+    auth.logout();
+    this.logIn();
   }
 };
 
 var view = {
+  displayUserData: function(){
+    this.createLogoutButton();
+  },
   displayGame: function(){
     var container = document.getElementById('container');
     var startGameButton = document.getElementById('startGameButton');
@@ -161,6 +171,7 @@ var view = {
     container.appendChild(board);
     container.appendChild(player2Data);
     this.createSettingsButton(header);
+    this.createQuitButton(header);
   },
   quitGame: function(){
     var container = document.getElementById('container');
@@ -175,6 +186,10 @@ var view = {
   },
   updateInfo: function(name, p1, p2){
     var gameName = document.querySelector('h1');
+    var inputs = document.querySelectorAll('input');
+    inputs.forEach(function(input){
+      input.value = '';
+    });
     gameName.textContent = name;
     this.toggleOverlay();
   },
@@ -202,15 +217,77 @@ var view = {
     };
     return  startGameButton;
   },
+  createQuitButton: function(header){
+    var quitButton = document.createElement('button');
+    quitButton.id = 'quitButton';
+    quitButton.textContent = "Quit Game";
+    quitButton.onclick = function(){
+      handlers.quitGame();
+    };
+    header.appendChild(quitButton);
+  },
   createSettingsButton: function(header){
     var settingsButton = document.createElement('button');
     settingsButton.className = 'settings';
+    settingsButton.textContent = 'Settings';
     settingsButton.onclick = function(){view.toggleOverlay();};
     header.appendChild(settingsButton);
   },
+  createLogoutButton: function(){
+    var header = document.querySelector('header');
+    var logoutButton = document.createElement('button');
+    logoutButton.id = 'logout';
+    logoutButton.textContent = 'Logout';
+    logoutButton.onclick = function(){
+      handlers.logout();
+    };
+    header.appendChild(logoutButton);
+  },
   toggleOverlay: function(){
-   document.body.classList.toggle('overlay');
-  }
+   document.body.classList.toggle('settingsOverlay');
+  },
+  setUpEventListeners: function(){
+    var area = document.getElementById('board');
+    area.addEventListener('click', function(event){
+      var square = event.target;
+      handlers.takeTurn(square.id, square);
+    });
+  },
+  toggleAuthOverlay: function(answer){
+    if (answer === true){
+      document.body.removeChild(document.body.firstChild);
+    }
+    else {
+      if (document.body.firstChild.id != 'authOverlay'){
+        var authOverlay = document.createElement('div');
+        var input1 = document.createElement('input');
+        var input2 = document.createElement('input');
+        var input3 = document.createElement('input');
+        var inputdiv = document.createElement('div');
+        var form = document.createElement('form');
+        authOverlay.id = 'authOverlay';
+        input1.name = 'name';
+        input2.name = 'password';
+        input3.value = 'Submit';
+        input3.type = 'submit';
+        input1.className = 'authInput';
+        input2.className = 'authInput';
+        input3.className = 'authInput';
+        form.id = 'authForm';
+        form.appendChild(input1);
+        form.appendChild(input2);
+        form.appendChild(input3);
+        authOverlay.appendChild(form);
+        form.onsubmit = function(){
+          var name = input1.value;
+          var password = input2.value;
+          handlers.logIn(name, password);
+          return false;
+        };
+        document.body.insertBefore(authOverlay, document.body.firstChild);
+      }
+    }
+  },
 };
 
 
@@ -220,10 +297,10 @@ var auth = {
   currentUser: null,
   loggedIn: function(){
   if (this.currentUser){
-    console.log('logged in');
+    return true;
   }
   else {
-    console.log('please log in');
+    return false;
   }
   },
   newUser: function(name, password){
@@ -263,5 +340,5 @@ var auth = {
 };
 
 window.onload = function(){
-  auth.loggedIn();
+  handlers.logIn();
 };

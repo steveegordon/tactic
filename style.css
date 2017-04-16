@@ -111,10 +111,12 @@ div.p2 {
   background-color: darkblue;
 }
 
-div#overlay {
+div#settingsOverlay {
   height: 100vh;
   width: 33vh;
   position: absolute;
+  -webkit-transition: left 2s;
+  transition: left 2s;
   left: -33%;
   background-color: purple;
 }
@@ -124,10 +126,27 @@ button#startGameButton {
   margin: auto auto;
 }
 
-body.overlay>div#overlay {
+body.settingsOverlay>div#settingsOverlay {
   left: 0;
+  -webkit-transition: left 2s;
+  transition: left 2s;
 }
 
 button.settings {
   float: right;
+}
+
+div#authOverlay {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  z-index: 2;
+  background-color: white;
+}
+
+#authForm {
+  position: relative;
+  top: 50%;
+  left: 33%;
+  margin: auto auto;
 }
