@@ -150,3 +150,10 @@ div#authOverlay {
   left: 33%;
   margin: auto auto;
 }
+
+.game {
+  height: 100px;
+  width: 100px;
+  background-color: aqua;
+  border: 2px solid black;
+}

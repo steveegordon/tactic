@@ -2,9 +2,15 @@ var game = {
   games: [],
   currentGame: null,
   updateInfo: function(name, p1, p2){
-    this.currentGame.name = name;
-    this.currentGame.p1 = p1;
+    if (name.length > 0){
+      this.currentGame.name = name;
+    }
+    if (p1.length > 0){
+      this.currentGame.p1 = p1;
+    }
+    if (p2.length > 0){
     this.currentGame.p2 = p2;
+    }
   },
   createGame: function(){
     var newGame = {
@@ -15,7 +21,7 @@ var game = {
       p2: '',
       p1wins: 0,
       p2wins: 0,
-      name: Math.floor((Math.random() * 10000) + 1),
+      name: Math.floor((Math.random() * 10000) + 1).toString(),
     };
     for (var i = 0; i < 9; i++){
       newGame.board.push({
@@ -25,6 +31,18 @@ var game = {
     }
     this.games.push(newGame);
     this.selectGame(newGame.name);
+  },
+  findUserGames: function(){
+    var currentUser = auth.currentUser.name;
+    var userGames = [];
+    if (this.games.length > 0){
+      for (var i = 0; i < this.games.length; i++){
+        if (currentUser === this.games[i].p1 || this.games[i].p2){
+          userGames.push(this.games[i]);
+        }
+      }
+    }
+    return userGames;
   },
   selectGame: function(name){
     for (var i = 0; i < this.games.length; i++){
@@ -106,9 +124,14 @@ var handlers = {
     if (auth.loggedIn()){
       view.toggleAuthOverlay(true);
       view.displayUserData();
+      this.loadGames();
     }
     else{view.toggleAuthOverlay(false);
     }
+  },
+  loadGames: function(){
+    view.displayUserGames(game.findUserGames());
+    view.setUpGamesEventListeners();
   },
   updateInfo: function(name, p1, p2){
     game.updateInfo(name, p1, p2);
@@ -118,7 +141,7 @@ var handlers = {
   startGame: function(){
     game.createGame();
     view.displayGame();
-    view.setUpEventListeners();
+    view.setUpBoardEventListeners();
   },
   // Reset game
   resetGame: function(){
@@ -135,17 +158,34 @@ var handlers = {
   quitGame: function(){
     game.quitGame();
     view.quitGame();
+    this.loadGames();
   },
   logout: function(){
     game.quitGame();
     auth.logout();
     this.logIn();
+  },
+  selectGame: function(picked){
+    game.selectGame(picked);
+    view.displayGame();
   }
 };
 
 var view = {
   displayUserData: function(){
     this.createLogoutButton();
+  },
+  displayUserGames: function(a){
+    debugger;
+    var container = document.getElementById('container');
+    a.forEach(function(item){
+      var div = document.createElement('div');
+      div.className = 'game';
+      var p = document.createElement('p');
+      p.innerHTML = item.name;
+      div.appendChild(p);
+      container.appendChild(div);
+    });
   },
   displayGame: function(){
     var container = document.getElementById('container');
@@ -246,7 +286,17 @@ var view = {
   toggleOverlay: function(){
    document.body.classList.toggle('settingsOverlay');
   },
-  setUpEventListeners: function(){
+  setUpGamesEventListeners: function(){
+    var container = document.getElementById('container');
+    container.addEventListener('click', function(event){
+      var elementClicked = event.target;
+      if (elementClicked.className === 'game'){
+        console.log(elementClicked);
+        handlers.selectGame(elementClicked.firstChild.innerHTML);
+      }
+    });
+  },
+  setUpBoardEventListeners: function(){
     var area = document.getElementById('board');
     area.addEventListener('click', function(event){
       var square = event.target;
