@@ -123,7 +123,9 @@ var handlers = {
     auth.logIn(name, password);
     if (auth.loggedIn()){
       view.toggleAuthOverlay(true);
+      view.createStartButton();
       view.displayUserData();
+      view.setUpEventListeners();
       this.loadGames();
     }
     else{view.toggleAuthOverlay(false);
@@ -131,7 +133,6 @@ var handlers = {
   },
   loadGames: function(){
     view.displayUserGames(game.findUserGames());
-    view.setUpGamesEventListeners();
   },
   updateInfo: function(name, p1, p2){
     game.updateInfo(name, p1, p2);
@@ -139,9 +140,14 @@ var handlers = {
   },
   // New game
   startGame: function(){
+    view.removeStartButton();
+    view.removeUserGames();
     game.createGame();
     view.displayGame();
-    view.setUpBoardEventListeners();
+  },
+  loadGame: function(){
+    view.removeStartButton();
+    view.removeUserGames();
   },
   // Reset game
   resetGame: function(){
@@ -156,40 +162,54 @@ var handlers = {
     }
   },
   quitGame: function(){
+    debugger;
+    var board = document.getElementById('board');
     game.quitGame();
     view.quitGame();
+    view.createStartButton();
     this.loadGames();
   },
   logout: function(){
     game.quitGame();
     auth.logout();
+    view.removeUserGames();
     this.logIn();
   },
   selectGame: function(picked){
+    var startbutton = document.getElementById('startGameButton');
+    this.loadGame();
     game.selectGame(picked);
     view.displayGame();
   }
 };
 
 var view = {
+  eventListeners: false,
   displayUserData: function(){
     this.createLogoutButton();
   },
   displayUserGames: function(a){
-    debugger;
     var container = document.getElementById('container');
+    var gameContainer = document.createElement('div');
+    gameContainer.id = 'gameContainer';
     a.forEach(function(item){
       var div = document.createElement('div');
       div.className = 'game';
       var p = document.createElement('p');
       p.innerHTML = item.name;
       div.appendChild(p);
-      container.appendChild(div);
+      gameContainer.appendChild(div);
     });
+    container.appendChild(gameContainer);
+  },
+  removeUserGames: function(){
+    var gameContainer = document.getElementById('gameContainer');
+    if (gameContainer){
+      gameContainer.parentNode.removeChild(gameContainer);
+    }
   },
   displayGame: function(){
     var container = document.getElementById('container');
-    var startGameButton = document.getElementById('startGameButton');
     var header = document.querySelector('header');
     var title = document.createElement('h1');
     title.textContent = "New Game";
@@ -205,7 +225,6 @@ var view = {
       box.className = 'square';
       board.appendChild(box);
     });
-    container.removeChild(startGameButton);
     header.appendChild(title);
     container.appendChild(player1Data);
     container.appendChild(board);
@@ -222,7 +241,6 @@ var view = {
     while(header.hasChildNodes()){
       header.removeChild(header.lastChild);
     }
-    container.appendChild(this.createStartButton());
   },
   updateInfo: function(name, p1, p2){
     var gameName = document.querySelector('h1');
@@ -249,13 +267,18 @@ var view = {
     });
   },
   createStartButton: function(){
+    var container = document.getElementById('container');
     var startGameButton = document.createElement('button');
     startGameButton.id = 'startGameButton';
     startGameButton.textContent = 'Start Game';
-    startGameButton.onclick = function(){
-      handlers.startGame();
-    };
-    return  startGameButton;
+    container.appendChild(startGameButton);
+  },
+  removeStartButton: function(){
+    var container = document.getElementById('container');
+    var startGameButton = document.getElementById('startGameButton');
+    console.log(startGameButton);
+    startGameButton = document.getElementById('startGameButton');
+    container.removeChild(startGameButton);
   },
   createQuitButton: function(header){
     var quitButton = document.createElement('button');
@@ -286,7 +309,8 @@ var view = {
   toggleOverlay: function(){
    document.body.classList.toggle('settingsOverlay');
   },
-  setUpGamesEventListeners: function(){
+  setUpEventListeners: function(){
+    if (this.eventListeners === false){
     var container = document.getElementById('container');
     container.addEventListener('click', function(event){
       var elementClicked = event.target;
@@ -294,14 +318,15 @@ var view = {
         console.log(elementClicked);
         handlers.selectGame(elementClicked.firstChild.innerHTML);
       }
+      if (elementClicked.id === 'startGameButton'){
+        handlers.startGame();
+      }
+      if (elementClicked.className === 'square'){
+        handlers.takeTurn(elementClicked.id, elementClicked);
+      }
     });
-  },
-  setUpBoardEventListeners: function(){
-    var area = document.getElementById('board');
-    area.addEventListener('click', function(event){
-      var square = event.target;
-      handlers.takeTurn(square.id, square);
-    });
+    this.eventListeners = true;
+    }
   },
   toggleAuthOverlay: function(answer){
     if (answer === true){
@@ -337,7 +362,7 @@ var view = {
         document.body.insertBefore(authOverlay, document.body.firstChild);
       }
     }
-  },
+  }
 };
 
 
