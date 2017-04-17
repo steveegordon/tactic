@@ -17,7 +17,7 @@ var game = {
       board:[],
       totalTurn: 0,
       turn: 1,
-      p1: '',
+      p1: auth.currentUser.name,
       p2: '',
       p1wins: 0,
       p2wins: 0,
@@ -119,6 +119,10 @@ var game = {
 };
 
 var handlers = {
+  newUser: function(name, password){
+    auth.newUser(name, password);
+    this.logIn(name, password);
+  },
   logIn: function(name, password){
     auth.logIn(name, password);
     if (auth.loggedIn()){
@@ -162,7 +166,6 @@ var handlers = {
     }
   },
   quitGame: function(){
-    debugger;
     var board = document.getElementById('board');
     game.quitGame();
     view.quitGame();
@@ -214,7 +217,7 @@ var view = {
     var container = document.getElementById('gameContainer');
     var gameData = document.getElementById('gameData');
     var title = document.createElement('h1');
-    title.textContent = "New Game";
+    title.textContent = game.currentGame.name;
     var player1Data = document.createElement('div');
     player1Data.className = 'playerData';
     var player2Data = document.createElement('div');
@@ -345,21 +348,31 @@ var view = {
         var input1 = document.createElement('input');
         var input2 = document.createElement('input');
         var input3 = document.createElement('input');
+        var input4 = document.createElement('input');
         var inputdiv = document.createElement('div');
         var form = document.createElement('form');
         authOverlay.id = 'authOverlay';
         input1.name = 'name';
         input2.name = 'password';
-        input3.value = 'Submit';
+        input3.value = 'Log In';
         input3.type = 'submit';
+        input4.value = 'Create User';
+        input4.type = 'button';
         input1.className = 'authInput';
         input2.className = 'authInput';
         input3.className = 'authInput';
+        input4.className = 'authInput';
         form.id = 'authForm';
         form.appendChild(input1);
         form.appendChild(input2);
         form.appendChild(input3);
+        form.appendChild(input4);
         authOverlay.appendChild(form);
+        input4.onclick = function(){
+          var name = input1.value;
+          var password = input2.value;
+          handlers.newUser(name, password);
+        };
         form.onsubmit = function(){
           var name = input1.value;
           var password = input2.value;
