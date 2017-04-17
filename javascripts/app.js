@@ -170,9 +170,11 @@ var handlers = {
     this.loadGames();
   },
   logout: function(){
-    game.quitGame();
+    this.quitGame();
     auth.logout();
+    view.removeStartButton();
     view.removeUserGames();
+    view.removeLogoutButton();
     this.logIn();
   },
   selectGame: function(picked){
@@ -189,9 +191,9 @@ var view = {
     this.createLogoutButton();
   },
   displayUserGames: function(a){
-    var container = document.getElementById('container');
+    var container = document.getElementById('gameData');
     var gameContainer = document.createElement('div');
-    gameContainer.id = 'gameContainer';
+    gameContainer.id = 'gamesContainer';
     a.forEach(function(item){
       var div = document.createElement('div');
       div.className = 'game';
@@ -203,14 +205,14 @@ var view = {
     container.appendChild(gameContainer);
   },
   removeUserGames: function(){
-    var gameContainer = document.getElementById('gameContainer');
+    var gameContainer = document.getElementById('gamesContainer');
     if (gameContainer){
       gameContainer.parentNode.removeChild(gameContainer);
     }
   },
   displayGame: function(){
-    var container = document.getElementById('container');
-    var header = document.querySelector('header');
+    var container = document.getElementById('gameContainer');
+    var gameData = document.getElementById('gameData');
     var title = document.createElement('h1');
     title.textContent = "New Game";
     var player1Data = document.createElement('div');
@@ -225,21 +227,21 @@ var view = {
       box.className = 'square';
       board.appendChild(box);
     });
-    header.appendChild(title);
+    gameData.appendChild(title);
     container.appendChild(player1Data);
     container.appendChild(board);
     container.appendChild(player2Data);
-    this.createSettingsButton(header);
-    this.createQuitButton(header);
+    this.createSettingsButton(gameData);
+    this.createQuitButton(gameData);
   },
   quitGame: function(){
-    var container = document.getElementById('container');
-    var header = document.querySelector('header');
+    var container = document.getElementById('gameContainer');
+    var gameData = document.getElementById('gameData');
     while(container.hasChildNodes()){
       container.removeChild(container.lastChild);
     }
-    while(header.hasChildNodes()){
-      header.removeChild(header.lastChild);
+    while(gameData.hasChildNodes()){
+      gameData.removeChild(gameData.lastChild);
     }
   },
   updateInfo: function(name, p1, p2){
@@ -267,34 +269,34 @@ var view = {
     });
   },
   createStartButton: function(){
-    var container = document.getElementById('container');
+    var container = document.getElementById('gameContainer');
     var startGameButton = document.createElement('button');
     startGameButton.id = 'startGameButton';
     startGameButton.textContent = 'Start Game';
     container.appendChild(startGameButton);
   },
   removeStartButton: function(){
-    var container = document.getElementById('container');
+    var container = document.getElementById('gameContainer');
     var startGameButton = document.getElementById('startGameButton');
     console.log(startGameButton);
     startGameButton = document.getElementById('startGameButton');
     container.removeChild(startGameButton);
   },
-  createQuitButton: function(header){
+  createQuitButton: function(elm){
     var quitButton = document.createElement('button');
     quitButton.id = 'quitButton';
     quitButton.textContent = "Quit Game";
     quitButton.onclick = function(){
       handlers.quitGame();
     };
-    header.appendChild(quitButton);
+    elm.appendChild(quitButton);
   },
-  createSettingsButton: function(header){
+  createSettingsButton: function(elm){
     var settingsButton = document.createElement('button');
     settingsButton.className = 'settings';
     settingsButton.textContent = 'Settings';
     settingsButton.onclick = function(){view.toggleOverlay();};
-    header.appendChild(settingsButton);
+    elm.appendChild(settingsButton);
   },
   createLogoutButton: function(){
     var header = document.querySelector('header');
@@ -305,6 +307,11 @@ var view = {
       handlers.logout();
     };
     header.appendChild(logoutButton);
+  },
+  removeLogoutButton: function(){
+    var header = document.querySelector('header');
+    var logoutButton = document.getElementById('logout');
+    header.removeChild(logoutButton);
   },
   toggleOverlay: function(){
    document.body.classList.toggle('settingsOverlay');

@@ -60,7 +60,7 @@ body {
 }
 
 header {
-  height: 20%;
+  height: 5%;
   width: 100%;
 }
 
@@ -69,17 +69,25 @@ footer {
   width: 100%;
 }
 
-header>h1 {
-  text-align: center;
-  position: relative;
+#container {
+  height: 85%;
   width: 100%;
-  display: inline-block;
-  top: 50%;
 }
 
-#container {
+#gameData>h1 {
+  margin: auto;
+  text-align: center;
+  width: 30%;
+}
+
+#gameData {
+  height: 20%;
   width: 100%;
-  height: 70%;
+}
+
+#gameContainer {
+  width: 100%;
+  height: 80%;
   display: flex;
   flex-wrap: wrap;
 }
@@ -94,6 +102,11 @@ header>h1 {
   height: 100%;
   display: flex;
   flex-wrap: wrap;
+}
+
+#gamesContainer {
+  height: 100%;
+  display: flex;
 }
 
 .square {
@@ -135,6 +148,9 @@ body.settingsOverlay>div#settingsOverlay {
 button.settings {
   float: right;
 }
+button#quitButton {
+  float: left;
+}
 
 div#authOverlay {
   position: absolute;
@@ -152,8 +168,9 @@ div#authOverlay {
 }
 
 .game {
-  height: 100px;
-  width: 100px;
+  display: inline-block;
+  height: 100%;
+  width: 10%;
   background-color: aqua;
   border: 2px solid black;
 }
