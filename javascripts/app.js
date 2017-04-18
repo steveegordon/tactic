@@ -310,7 +310,6 @@ var view = {
   removeStartButton: function(){
     var container = document.getElementById('gameContainer');
     var startGameButton = document.getElementById('startGameButton');
-    console.log(startGameButton);
     startGameButton = document.getElementById('startGameButton');
     container.removeChild(startGameButton);
   },
@@ -361,7 +360,6 @@ var view = {
       var elementClicked = event.target;
       // If target is game, loads a game
       if (elementClicked.className === 'game'){
-        console.log(elementClicked);
         handlers.selectGame(elementClicked.firstChild.innerHTML);
       }
       // If target is start button, starts a game
