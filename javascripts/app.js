@@ -228,6 +228,12 @@ var view = {
       var box = document.createElement('div');
       box.id = index;
       box.className = 'square';
+      if (square.user === 1) {
+        box.classList.add('p1');
+      }
+      if (square.user === 2) {
+        box.classList.add('p2');
+      }
       board.appendChild(box);
     });
     gameData.appendChild(title);
