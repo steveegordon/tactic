@@ -1,0 +1,12 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "games": {
+      ".indexOn": [
+        "p1",
+        "p2"
+      ]
+    }
+  }
+}

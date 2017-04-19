@@ -1,3 +1,37 @@
+// Firebase
+var db = {
+  config: {
+    apiKey: "AIzaSyDsmX3bGT-UqGRJdoYuzM0LnzbwLLsOewA",
+    authDomain: "steves.firebaseapp.com",
+    databaseURL: "https://steves.firebaseio.com",
+    storageBucket: "firebase-steves.appspot.com",
+    messagingSenderId: "726653008276"
+  },
+  initialize: function(){
+    firebase.initializeApp(db.config);
+    firebase.auth().onAuthStateChanged(function(user){
+      if (user) {
+        auth.currentUser = user;
+      }
+      else {
+        auth.currentUser = null;
+      }
+    });
+  },
+  signIn: function(){
+    var provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider);
+  }
+
+};
+
+
+
+
+
+
+
+
 // Object holds Games and game logic
 var game = {
   games: [],
@@ -479,4 +513,6 @@ var auth = {
 // On page load sets authorization
 window.onload = function(){
   handlers.logIn();
+  db.initialize();
+  db.signIn();
 };
