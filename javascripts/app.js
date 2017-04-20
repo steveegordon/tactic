@@ -1,29 +1,38 @@
 // Firebase
-var db = {
-  config: {
-    apiKey: "AIzaSyDsmX3bGT-UqGRJdoYuzM0LnzbwLLsOewA",
-    authDomain: "steves.firebaseapp.com",
-    databaseURL: "https://steves.firebaseio.com",
-    storageBucket: "firebase-steves.appspot.com",
-    messagingSenderId: "726653008276"
-  },
-  initialize: function(){
-    firebase.initializeApp(db.config);
-    firebase.auth().onAuthStateChanged(function(user){
-      if (user) {
-        auth.currentUser = user;
-      }
-      else {
-        auth.currentUser = null;
-      }
-    });
-  },
-  signIn: function(){
-    var provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(provider);
-  }
+var appDatabase;
+// var db = {
+//   database: null,
+//   config: {
+//     apiKey: "AIzaSyDsmX3bGT-UqGRJdoYuzM0LnzbwLLsOewA",
+//     authDomain: "steves.firebaseapp.com",
+//     databaseURL: "https://steves.firebaseio.com",
+//     storageBucket: "firebase-steves.appspot.com",
+//     messagingSenderId: "726653008276"
+//   },
+//   initialize: function(){
+//     firebase.initializeApp(db.config);
+//     firebase.auth().onAuthStateChanged(function(user){
+//       if (user) {
+//         auth.currentUser = user;
+//         db.database  = firebase.database();
+//       }
+//       else {
+//         auth.currentUser = null;
+//         db.signIn();
+//       }
+//     });
+//   },
+//   signIn: function(){
+//     var provider = new firebase.auth.GoogleAuthProvider();
+//     firebase.auth().signInWithPopup(provider);
+//   },
+//   newGame: function(){
+//     this.database.ref('games/' + math.rand).set({
+//       shimsham: "flibflob"
+//     });
+//   }
 
-};
+// };
 
 
 
@@ -34,6 +43,7 @@ var db = {
 
 // Object holds Games and game logic
 var game = {
+  gamesRef: null,
   games: [],
   currentGame: null,
   // Changes game info as long as it exists
@@ -51,10 +61,11 @@ var game = {
   // Creates a new game object and loads to games array
   createGame: function(){
     var newGame = {
+      gameId: Math.random() * 10000,
       board:[],
       totalTurn: 0,
       turn: 1,
-      p1: auth.currentUser.name,
+      p1: authentication.currentUser.displayName,
       p2: '',
       p1wins: 0,
       p2wins: 0,
@@ -67,11 +78,12 @@ var game = {
       });
     }
     this.games.push(newGame);
+    db.database.ref('games/' + newGame.gameId);
     this.selectGame(newGame.name);
   },
   // Searches through games array and finds users games
   findUserGames: function(){
-    var currentUser = auth.currentUser.name;
+    var currentUser = authentication.currentUser.name;
     var userGames = [];
     if (this.games.length > 0){
       for (var i = 0; i < this.games.length; i++){
@@ -164,21 +176,27 @@ var game = {
 var handlers = {
   // Creates new user, linked to authOverlay button
   newUser: function(name, password){
-    auth.newUser(name, password);
+    authentication.newUser(name, password);
     this.logIn(name, password);
   },
   // Logs in existing user, linked to authOverlay submit
-  logIn: function(name, password){
-    auth.logIn(name, password);
-    if (auth.loggedIn()){
+  loadApp: function(){
+    // auth.logIn(name, password);
+    // if (authentication.loggedIn()){
+      authentication.initialize();
+      view.setUpEventListeners();
+    // }
+  //   else{view.toggleAuthOverlay(false);
+  //   }
+  },
+  loadUser: function(){
       view.toggleAuthOverlay(true);
       view.createStartButton();
       view.displayUserData();
-      view.setUpEventListeners();
       this.loadGames();
-    }
-    else{view.toggleAuthOverlay(false);
-    }
+  },
+  logIn: function(){
+    authentication.signIn();
   },
   // Finds and displays user games on log in and quit game
   loadGames: function(){
@@ -219,7 +237,7 @@ var handlers = {
   // Logs currentUser out, Linked to logout button
   logout: function(){
     this.quitGame();
-    auth.logout();
+    authentication.signOut();
     view.removeStartButton();
     view.removeUserGames();
     view.removeLogoutButton();
@@ -411,7 +429,7 @@ var view = {
   },
   // Toggles login page
   toggleAuthOverlay: function(answer){
-    if (answer === true){
+    if (true){
       document.body.removeChild(document.body.firstChild);
     }
     else {
@@ -459,18 +477,49 @@ var view = {
 
 
 // Authorization object with user methods
-var auth = {
+var authentication = {
   users: [],
   currentUser: null,
-  // Returns true if a user is logged in
-  loggedIn: function(){
-  if (this.currentUser){
-    return true;
-  }
-  else {
-    return false;
-  }
+  config: {
+    apiKey: "AIzaSyDsmX3bGT-UqGRJdoYuzM0LnzbwLLsOewA",
+    authDomain: "steves.firebaseapp.com",
+    databaseURL: "https://steves.firebaseio.com",
+    storageBucket: "firebase-steves.appspot.com",
+    messagingSenderId: "726653008276"
   },
+  initialize: function(){
+    firebase.initializeApp(this.config);
+    firebase.auth().onAuthStateChanged(function(user){
+      if (user) {
+        authentication.currentUser = user;
+        game.gamesRef = firebase.database().ref('/games');
+        handlers.loadUser();
+        // handlers.logIn(user);
+        // auth.currentUser = user;
+        // appDatabase  = firebase.database();
+      }
+      else {
+        authentication.currentUser = null;
+        handlers.logIn();
+      }
+    });
+  },
+  signIn: function(){
+    var provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider);
+  },
+  signOut: function(){
+    firebase.auth().signOut();
+  },
+  // Returns true if a user is logged in
+  // loggedIn: function(){
+  // if (this.currentUser){
+  //   return true;
+  // }
+  // else {
+  //   return false;
+  // }
+  // },
   // Creates a new user and adds it to users array
   newUser: function(name, password){
     var user = {
@@ -480,27 +529,23 @@ var auth = {
     this.users.push(user);
   },
   // Checks User Credentials and logs in or denies
-  logIn: function(user, password){
-    var checkUser = this.findUser(user);
-    if (checkUser){
-      if (checkUser.password === password){
-        console.log('welcome user');
-        this.currentUser = checkUser;
-        this.loggedIn();
-      }
-      else {
-        console.log('incorrect password');
-      }
-    }
-    else {
-      console.log('no user found');
-    }
-  },
+  // logIn: function(user, password){
+  //   var checkUser = this.findUser(user);
+  //   if (checkUser){
+  //     if (checkUser.password === password){
+  //       console.log('welcome user');
+  //       this.currentUser = checkUser;
+  //       this.loggedIn();
+  //     }
+  //     else {
+  //       console.log('incorrect password');
+  //     }
+  //   }
+  //   else {
+  //     console.log('no user found');
+  //   }
+  // },
   // Logs current user out
-  logout: function(){
-    this.currentUser = null;
-    this.loggedIn();
-  },
   // Finds user from the users array
   findUser: function(input){
     for (var i = 0; i < this.users.length; i++){
@@ -512,7 +557,5 @@ var auth = {
 };
 // On page load sets authorization
 window.onload = function(){
-  handlers.logIn();
-  db.initialize();
-  db.signIn();
+  handlers.loadApp();
 };
