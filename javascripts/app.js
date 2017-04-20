@@ -60,8 +60,8 @@ var game = {
   },
   // Creates a new game object and loads to games array
   createGame: function(){
+    var gameId = (Math.floor(Math.random() * 10000)).toString();
     var newGame = {
-      gameId: Math.random() * 10000,
       board:[],
       totalTurn: 0,
       turn: 1,
@@ -69,7 +69,7 @@ var game = {
       p2: '',
       p1wins: 0,
       p2wins: 0,
-      name: Math.floor((Math.random() * 10000) + 1).toString(),
+      name: gameId,
     };
     for (var i = 0; i < 9; i++){
       newGame.board.push({
@@ -78,7 +78,7 @@ var game = {
       });
     }
     this.games.push(newGame);
-    db.database.ref('games/' + newGame.gameId);
+    firebase.database().ref('/games/' + gameId).set(newGame);
     this.selectGame(newGame.name);
   },
   // Searches through games array and finds users games
@@ -478,6 +478,7 @@ var view = {
 
 // Authorization object with user methods
 var authentication = {
+  userRef: null,
   users: [],
   currentUser: null,
   config: {
@@ -491,12 +492,19 @@ var authentication = {
     firebase.initializeApp(this.config);
     firebase.auth().onAuthStateChanged(function(user){
       if (user) {
-        authentication.currentUser = user;
         game.gamesRef = firebase.database().ref('/games');
+        authentication.currentUser = user;
+        authentication.usersRef = firebase.database().ref('/users');
         handlers.loadUser();
-        // handlers.logIn(user);
-        // auth.currentUser = user;
-        // appDatabase  = firebase.database();
+        authentication.usersRef.orderByChild("name").equalTo(user.displayName).once('value').then(function(datasnapshot){
+          authentication.userRef = firebase.database().ref('/users/' + user.uid);
+          if (datasnapshot.val() === null) {
+            console.log('creating user');
+            authentication.userRef.set({
+            name: user.displayName
+          });
+          }
+        });
       }
       else {
         authentication.currentUser = null;
