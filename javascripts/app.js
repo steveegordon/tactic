@@ -1,45 +1,3 @@
-// Firebase
-var appDatabase;
-// var db = {
-//   database: null,
-//   config: {
-//     apiKey: "AIzaSyDsmX3bGT-UqGRJdoYuzM0LnzbwLLsOewA",
-//     authDomain: "steves.firebaseapp.com",
-//     databaseURL: "https://steves.firebaseio.com",
-//     storageBucket: "firebase-steves.appspot.com",
-//     messagingSenderId: "726653008276"
-//   },
-//   initialize: function(){
-//     firebase.initializeApp(db.config);
-//     firebase.auth().onAuthStateChanged(function(user){
-//       if (user) {
-//         auth.currentUser = user;
-//         db.database  = firebase.database();
-//       }
-//       else {
-//         auth.currentUser = null;
-//         db.signIn();
-//       }
-//     });
-//   },
-//   signIn: function(){
-//     var provider = new firebase.auth.GoogleAuthProvider();
-//     firebase.auth().signInWithPopup(provider);
-//   },
-//   newGame: function(){
-//     this.database.ref('games/' + math.rand).set({
-//       shimsham: "flibflob"
-//     });
-//   }
-
-// };
-
-
-
-
-
-
-
 
 // Object holds Games and game logic
 var game = {
@@ -77,7 +35,6 @@ var game = {
         user: 0
       });
     }
-    this.games.push(newGame);
     firebase.database().ref('/games/' + gameId).set(newGame);
     this.selectGame(newGame.name);
   },
@@ -181,13 +138,8 @@ var handlers = {
   },
   // Logs in existing user, linked to authOverlay submit
   loadApp: function(){
-    // auth.logIn(name, password);
-    // if (authentication.loggedIn()){
       authentication.initialize();
       view.setUpEventListeners();
-    // }
-  //   else{view.toggleAuthOverlay(false);
-  //   }
   },
   loadUser: function(){
       view.toggleAuthOverlay(true);
@@ -519,15 +471,6 @@ var authentication = {
   signOut: function(){
     firebase.auth().signOut();
   },
-  // Returns true if a user is logged in
-  // loggedIn: function(){
-  // if (this.currentUser){
-  //   return true;
-  // }
-  // else {
-  //   return false;
-  // }
-  // },
   // Creates a new user and adds it to users array
   newUser: function(name, password){
     var user = {
@@ -536,24 +479,6 @@ var authentication = {
     };
     this.users.push(user);
   },
-  // Checks User Credentials and logs in or denies
-  // logIn: function(user, password){
-  //   var checkUser = this.findUser(user);
-  //   if (checkUser){
-  //     if (checkUser.password === password){
-  //       console.log('welcome user');
-  //       this.currentUser = checkUser;
-  //       this.loggedIn();
-  //     }
-  //     else {
-  //       console.log('incorrect password');
-  //     }
-  //   }
-  //   else {
-  //     console.log('no user found');
-  //   }
-  // },
-  // Logs current user out
   // Finds user from the users array
   findUser: function(input){
     for (var i = 0; i < this.users.length; i++){
