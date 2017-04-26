@@ -6,6 +6,7 @@ var game = {
   currentGameRef: null,
   currentGame: null,
   userGames: [],
+  openGames: [],
   // Changes game info as long as it exists
   updateInfo: function(name, p1, p2){
     if (name.length > 0){
@@ -60,6 +61,28 @@ var game = {
       if (authentication.inGame === false){
         handlers.loadGames();
       }
+    });
+  },
+  findOpenGames: function(user){
+    var findGames = firebase.database().ref("games").orderByChild("p2").equalTo("");
+    var showGames = new Promise(function(resolve, reject){
+      findGames.on('child_added', function(snapshot){
+        console.log(snapshot.val().p1);
+        console.log(authentication.currentUser);
+        if (snapshot.val()){
+          console.log(snapshot.val().p1);
+        if (snapshot.val().p1 !== authentication.currentUser.displayName){
+          game.openGames.push(snapshot.val());
+        }
+        }
+        }); 
+      findGames.on('child_removed', function(removedSnapshot){
+        game.openGames.forEach(function(openGame, index){
+          if (openGame.name === removedSnapshot.val().name){
+            game.openGames.splice(index, 1);
+          }
+        });
+      });
     });
   },
   // Sets game by name to currentGame
@@ -253,6 +276,20 @@ var view = {
     game.userGames.forEach(function(item){
       var div = document.createElement('div');
       div.className = 'game';
+      var p = document.createElement('p');
+      p.innerHTML = item.name;
+      div.appendChild(p);
+      gameContainer.appendChild(div);
+    });
+    container.appendChild(gameContainer);
+  },
+  displayOpenGames: function(){
+        var container = document.getElementById('gameData');
+    var gameContainer = document.createElement('div');
+    gameContainer.id = 'openGamesContainer';
+    game.openGames.forEach(function(item){
+      var div = document.createElement('div');
+      div.className = 'openGame';
       var p = document.createElement('p');
       p.innerHTML = item.name;
       div.appendChild(p);
