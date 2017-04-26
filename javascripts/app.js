@@ -3,7 +3,9 @@
 var game = {
   gamesRef: null,
   games: [],
+  currentGameRef: null,
   currentGame: null,
+  userGames: [],
   // Changes game info as long as it exists
   updateInfo: function(name, p1, p2){
     if (name.length > 0){
@@ -15,6 +17,7 @@ var game = {
     if (p2.length > 0){
     this.currentGame.p2 = p2;
     }
+    this.currentGameRef.update(this.currentGame);
   },
   // Creates a new game object and loads to games array
   createGame: function(){
@@ -35,36 +38,77 @@ var game = {
         user: 0
       });
     }
-    firebase.database().ref('/games/' + gameId).set(newGame);
-    this.selectGame(newGame.name);
+    firebase.database().ref('/games/' + gameId).set(newGame, function(){
+      game.currentGameRef = firebase.database().ref('/games/' + gameId);
+      game.currentGameRef.on('value', function(snapshot){
+        game.currentGame = snapshot.toJSON();
+        view.quitGame();
+        view.displayGame(this.currentGame);
+      });
+    });
+    // this.currentGame = newGame;
   },
   // Searches through games array and finds users games
-  findUserGames: function(){
-    var currentUser = authentication.currentUser.name;
-    var userGames = [];
-    if (this.games.length > 0){
-      for (var i = 0; i < this.games.length; i++){
-        if (currentUser === this.games[i].p1 || this.games[i].p2){
-          userGames.push(this.games[i]);
-        }
+  findUserGames: function(user){
+    var allGames = firebase.database().ref("games").orderByChild("p1").equalTo(user.displayName);
+    var showGames = new Promise(function(resolve, reject){
+      allGames.on('child_added', function(snapshot){
+        game.userGames.push(snapshot.val());
+        resolve(game.userGames);
+      });
+    });
+    showGames.then(function(val){
+      if (authentication.inGame === false){
+        handlers.loadGames();
       }
-    }
-    return userGames;
+    });
+    // firebase.database().ref("games").orderByChild("p2").equalTo(user.displayName).on('child_added', function(snapshot){
+    //     var newObject = snapshot.toJSON();
+    // });
+    // var currentUser = authentication.currentUser.name;
+    // var userGames = [];
+    // if (this.games.length > 0){
+    //   for (var i = 0; i < this.games.length; i++){
+    //     if (currentUser === this.games[i].p1 || this.games[i].p2){
+    //       userGames.push(this.games[i]);
+    //     }
+    //   }
+    // }
   },
   // Sets game by name to currentGame
   selectGame: function(name){
-    for (var i = 0; i < this.games.length; i++){
-      if (this.games[i].name === name) {
-        this.currentGame = this.games[i];
-      }
-    }
+      var gameId = null;
+      authentication.inGame = true;
+      var finder = new Promise(function(resolve, reject){
+        firebase.database().ref("games").orderByChild("name").equalTo(name.toString())
+        .once('value', function(snapshot){
+        gameId = Object.keys(snapshot.val()).toString();
+        console.log(gameId);
+        // game.currentGame = snapshot.child(gameId).val();
+        game.currentGameRef = firebase.database().ref('/games/' + gameId);
+        resolve(game.currentGameRef);
+      });
+      });
+        finder.then(function(val){
+          val.on('value', function(snapshot){
+            game.currentGame = snapshot.toJSON();
+            view.quitGame();
+            view.displayGame(this.currentGame);
+          });
+        });
   },
   // Resets current game board
   resetGame: function(){
-    this.currentGame.board.forEach(function(box){
-      box.user = 0;
-    });
+        for(let index in game.currentGame.board){
+    element = game.currentGame.board[index];
+      element.user = 0;
+    }
+    // this.currentGame.board.forEach(function(box){
+    //   box.user = 0;
+    // });
     this.currentGame.totalTurn = 0;
+    this.currentGame.turn = 1;
+    this.currentGameRef.update(this.currentGame);
   },
   // Logic for taking turns
   changeBox: function(number){
@@ -114,7 +158,7 @@ var game = {
       handlers.resetGame();}
     else if (this.currentGame.totalTurn === 9){confirm("Cats Game. Play again?");
       handlers.resetGame();}
-    else {return;}
+    this.currentGameRef.update(this.currentGame);
   },
   // Gives winner a win
   addWin: function(player){
@@ -126,8 +170,13 @@ var game = {
     }
   },
   quitGame: function(){
+    if (this.currentGame === true){
+    authentication.inGame = false;
+    this.currentGameRef.off();
     this.currentGame = null;
+    this.currentGameRef = null;
   }
+}
 };
 // Object controls major actions
 var handlers = {
@@ -141,18 +190,17 @@ var handlers = {
       authentication.initialize();
       view.setUpEventListeners();
   },
-  loadUser: function(){
+  loadUser: function(user){
       view.toggleAuthOverlay(true);
       view.createStartButton();
       view.displayUserData();
-      this.loadGames();
   },
   logIn: function(){
     authentication.signIn();
   },
   // Finds and displays user games on log in and quit game
   loadGames: function(){
-    view.displayUserGames(game.findUserGames());
+    view.displayUserGames();
   },
   // Changes users/game name, linked to settingsOverlay submit
   updateInfo: function(name, p1, p2){
@@ -164,7 +212,6 @@ var handlers = {
     view.removeStartButton();
     view.removeUserGames();
     game.createGame();
-    view.displayGame();
   },
   // Resets currentGame, runs on game.checkWin
   resetGame: function(){
@@ -193,7 +240,6 @@ var handlers = {
     view.removeStartButton();
     view.removeUserGames();
     view.removeLogoutButton();
-    this.logIn();
   },
   // Selects game from games, run on startGame and view.setUpEventListeners
   selectGame: function(picked){
@@ -201,7 +247,7 @@ var handlers = {
     view.removeStartButton();
     view.removeUserGames();
     game.selectGame(picked);
-    view.displayGame();
+    // view.displayGame();
   }
 };
 // Object holds all things related to DOM
@@ -212,11 +258,11 @@ var view = {
     this.createLogoutButton();
   },
   // Displays users games, run on log in and quit game
-  displayUserGames: function(a){
+  displayUserGames: function(){
     var container = document.getElementById('gameData');
     var gameContainer = document.createElement('div');
     gameContainer.id = 'gamesContainer';
-    a.forEach(function(item){
+    game.userGames.forEach(function(item){
       var div = document.createElement('div');
       div.className = 'game';
       var p = document.createElement('p');
@@ -245,18 +291,19 @@ var view = {
     player2Data.className = 'playerData';
     var board = document.createElement('div');
     board.id = 'board';
-    game.currentGame.board.forEach(function(square, index){
+    for(let index in game.currentGame.board){
+    element = game.currentGame.board[index];
       var box = document.createElement('div');
       box.id = index;
       box.className = 'square';
-      if (square.user === 1) {
+      if (element.user === 1) {
         box.classList.add('p1');
       }
-      if (square.user === 2) {
+      if (element.user === 2) {
         box.classList.add('p2');
       }
       board.appendChild(box);
-    });
+    }
     gameData.appendChild(title);
     container.appendChild(player1Data);
     container.appendChild(board);
@@ -430,6 +477,7 @@ var view = {
 
 // Authorization object with user methods
 var authentication = {
+  inGame: false,
   userRef: null,
   users: [],
   currentUser: null,
@@ -444,16 +492,19 @@ var authentication = {
     firebase.initializeApp(this.config);
     firebase.auth().onAuthStateChanged(function(user){
       if (user) {
-        game.gamesRef = firebase.database().ref('/games');
-        authentication.currentUser = user;
-        authentication.usersRef = firebase.database().ref('/users');
-        handlers.loadUser();
-        authentication.usersRef.orderByChild("name").equalTo(user.displayName).once('value').then(function(datasnapshot){
+          game.gamesRef = firebase.database().ref('/games');
+          authentication.currentUser = user;
+          authentication.usersRef = firebase.database().ref('/users');
+          handlers.loadUser(user);
+          game.findUserGames(user);
+          authentication.usersRef.orderByChild("name").equalTo(user.displayName)
+          .once('value').then(function(datasnapshot){
           authentication.userRef = firebase.database().ref('/users/' + user.uid);
           if (datasnapshot.val() === null) {
             console.log('creating user');
             authentication.userRef.set({
-            name: user.displayName
+            name: user.displayName,
+            games: []
           });
           }
         });
