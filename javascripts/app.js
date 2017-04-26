@@ -46,7 +46,6 @@ var game = {
         view.displayGame(this.currentGame);
       });
     });
-    // this.currentGame = newGame;
   },
   // Searches through games array and finds users games
   findUserGames: function(user){
@@ -62,23 +61,10 @@ var game = {
         handlers.loadGames();
       }
     });
-    // firebase.database().ref("games").orderByChild("p2").equalTo(user.displayName).on('child_added', function(snapshot){
-    //     var newObject = snapshot.toJSON();
-    // });
-    // var currentUser = authentication.currentUser.name;
-    // var userGames = [];
-    // if (this.games.length > 0){
-    //   for (var i = 0; i < this.games.length; i++){
-    //     if (currentUser === this.games[i].p1 || this.games[i].p2){
-    //       userGames.push(this.games[i]);
-    //     }
-    //   }
-    // }
   },
   // Sets game by name to currentGame
   selectGame: function(name){
       var gameId = null;
-      authentication.inGame = true;
       var finder = new Promise(function(resolve, reject){
         firebase.database().ref("games").orderByChild("name").equalTo(name.toString())
         .once('value', function(snapshot){
@@ -103,9 +89,6 @@ var game = {
     element = game.currentGame.board[index];
       element.user = 0;
     }
-    // this.currentGame.board.forEach(function(box){
-    //   box.user = 0;
-    // });
     this.currentGame.totalTurn = 0;
     this.currentGame.turn = 1;
     this.currentGameRef.update(this.currentGame);
@@ -171,7 +154,6 @@ var game = {
   },
   quitGame: function(){
     if (this.currentGame === true){
-    authentication.inGame = false;
     this.currentGameRef.off();
     this.currentGame = null;
     this.currentGameRef = null;
@@ -209,6 +191,7 @@ var handlers = {
   },
   // Creates a new game, linked to start button
   startGame: function(){
+    authentication.inGame = true;
     view.removeStartButton();
     view.removeUserGames();
     game.createGame();
@@ -226,16 +209,20 @@ var handlers = {
     }
   },
   // Quits current game, Linked to quitGame button
-  quitGame: function(){
+  quitGame: function(logout){
+    authentication.inGame = false;
     var board = document.getElementById('board');
     game.quitGame();
     view.quitGame();
     view.createStartButton();
+    if (logout !== true){
     this.loadGames();
+    }
   },
   // Logs currentUser out, Linked to logout button
   logout: function(){
-    this.quitGame();
+    this.quitGame(true);
+    game.userGames = [];
     authentication.signOut();
     view.removeStartButton();
     view.removeUserGames();
@@ -243,6 +230,7 @@ var handlers = {
   },
   // Selects game from games, run on startGame and view.setUpEventListeners
   selectGame: function(picked){
+    authentication.inGame = true;
     var startbutton = document.getElementById('startGameButton');
     view.removeStartButton();
     view.removeUserGames();
