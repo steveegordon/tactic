@@ -50,22 +50,24 @@ var game = {
   },
   // Searches through games array and finds users games
   findUserGames: function(user){
-    var allGames = firebase.database().ref("games").orderByChild("p1").equalTo(user.displayName);
-    var showGames = new Promise(function(resolve, reject){
-      allGames.on('child_added', function(snapshot){
+    var allp1Games = firebase.database().ref("games").orderByChild("p1").equalTo(user.displayName);
+    var allp2Games = firebase.database().ref("games").orderByChild("p2").equalTo(user.displayName);
+      allp1Games.on('child_added', function(snapshot){
         game.userGames.push(snapshot.val());
-        resolve(game.userGames);
+        if (authentication.inGame === false){
+          handlers.loadNewGames();
+        }
       });
-    });
-    showGames.then(function(val){
-      if (authentication.inGame === false){
-        handlers.loadGames();
-      }
-    });
+      allp2Games.on('child_added', function(snapshot){
+        game.userGames.push(snapshot.val());
+        if (authentication.inGame === false){
+          handlers.loadNewGames();
+        }
+      });
+      game.findOpenGames(user);
   },
   findOpenGames: function(user){
     var findGames = firebase.database().ref("games").orderByChild("p2").equalTo("");
-    var showGames = new Promise(function(resolve, reject){
       findGames.on('child_added', function(snapshot){
         console.log(snapshot.val().p1);
         console.log(authentication.currentUser);
@@ -75,6 +77,9 @@ var game = {
           game.openGames.push(snapshot.val());
         }
         }
+        if (authentication.inGame === false){
+          handlers.loadNewGames();
+        }
         }); 
       findGames.on('child_removed', function(removedSnapshot){
         game.openGames.forEach(function(openGame, index){
@@ -83,10 +88,9 @@ var game = {
           }
         });
       });
-    });
   },
   // Sets game by name to currentGame
-  selectGame: function(name){
+  selectGame: function(name, setP2){
       var gameId = null;
       var finder = new Promise(function(resolve, reject){
         firebase.database().ref("games").orderByChild("name").equalTo(name.toString())
@@ -99,6 +103,9 @@ var game = {
       });
       });
         finder.then(function(val){
+          if (setP2 === true){
+          val.child("p2").set(authentication.currentUser.displayName);
+         }
           val.on('value', function(snapshot){
             game.currentGame = snapshot.toJSON();
             view.quitGame();
@@ -206,6 +213,11 @@ var handlers = {
   // Finds and displays user games on log in and quit game
   loadGames: function(){
     view.displayUserGames();
+    view.displayOpenGames();
+  },
+  loadNewGames: function(){
+    view.removeUserGames();
+    handlers.loadGames();
   },
   // Changes users/game name, linked to settingsOverlay submit
   updateInfo: function(name, p1, p2){
@@ -246,18 +258,19 @@ var handlers = {
   logout: function(){
     this.quitGame(true);
     game.userGames = [];
+    game.openGames = [];
     authentication.signOut();
     view.removeStartButton();
     view.removeUserGames();
     view.removeLogoutButton();
   },
   // Selects game from games, run on startGame and view.setUpEventListeners
-  selectGame: function(picked){
+  selectGame: function(picked, answer){
     authentication.inGame = true;
     var startbutton = document.getElementById('startGameButton');
     view.removeStartButton();
     view.removeUserGames();
-    game.selectGame(picked);
+    game.selectGame(picked, answer);
     // view.displayGame();
   }
 };
@@ -300,8 +313,12 @@ var view = {
   // Clears other games when game loads
   removeUserGames: function(){
     var gameContainer = document.getElementById('gamesContainer');
+    var openGamesContainer = document.getElementById('openGamesContainer');
     if (gameContainer){
       gameContainer.parentNode.removeChild(gameContainer);
+    }
+    if (openGamesContainer){
+      openGamesContainer.parentNode.removeChild(openGamesContainer);
     }
   },
   // Displays game board and data on startGame and selectGame
@@ -436,7 +453,10 @@ var view = {
       var elementClicked = event.target;
       // If target is game, loads a game
       if (elementClicked.className === 'game'){
-        handlers.selectGame(elementClicked.firstChild.innerHTML);
+        handlers.selectGame(elementClicked.firstChild.innerHTML, false);
+      }
+      if (elementClicked.className === 'openGame'){
+        handlers.selectGame(elementClicked.firstChild.innerHTML, true);
       }
       // If target is start button, starts a game
       if (elementClicked.id === 'startGameButton'){
