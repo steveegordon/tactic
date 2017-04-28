@@ -50,6 +50,13 @@ blockquote, q {
 
 /*CSS Markup*/
 
+@media screen and (max-width: 600px){
+  body > div#settingsOverlay {
+  width: 60vw;
+  left: -60vw;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

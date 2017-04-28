@@ -26,7 +26,7 @@ var game = {
     var newGame = {
       board:[],
       totalTurn: 0,
-      turn: 1,
+      turn: authentication.currentUser.displayName,
       p1: authentication.currentUser.displayName,
       p2: '',
       p1wins: 0,
@@ -120,7 +120,7 @@ var game = {
       element.user = 0;
     }
     this.currentGame.totalTurn = 0;
-    this.currentGame.turn = 1;
+    this.currentGame.turn = this.currentGame.p1;
     this.currentGameRef.update(this.currentGame);
   },
   // Logic for taking turns
@@ -128,15 +128,15 @@ var game = {
     var square = this.currentGame.board[number];
     var playerTurn = this.currentGame.turn;
     if (square.user === 0){
-      if (playerTurn === 1){
+      if (playerTurn === this.currentGame.p1){
         square.user = 1;
-        this.currentGame.turn = 2;
+        this.currentGame.turn = this.currentGame.p2;
         this.currentGame.totalTurn++;
         this.checkWin(playerTurn);
       }
       else {
         square.user = 2;
-        this.currentGame.turn = 1;
+        this.currentGame.turn = this.currentGame.p1;
         this.currentGame.totalTurn++;
         this.checkWin(playerTurn);
       }
@@ -238,10 +238,19 @@ var handlers = {
   },
   // Takes turn, linked to view.setUpEventListeners
   takeTurn: function(id, square){
+    if (game.currentGame.p2 !== ''){
+    if (authentication.currentUser.displayName === game.currentGame.turn){
     if (square.classList.length === 1){
       view.changeBox(square);
       game.changeBox(id);
     }
+  }
+  else {
+    console.log("Not your turn");
+  }
+  }
+  else {console.log('Waiting for Opponent');
+  }
   },
   // Quits current game, Linked to quitGame button
   quitGame: function(logout){
@@ -271,7 +280,6 @@ var handlers = {
     view.removeStartButton();
     view.removeUserGames();
     game.selectGame(picked, answer);
-    // view.displayGame();
   }
 };
 // Object holds all things related to DOM
