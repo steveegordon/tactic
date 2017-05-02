@@ -295,6 +295,8 @@ var view = {
     var container = document.getElementById('gameData');
     var gameContainer = document.createElement('div');
     var label = document.createElement('h3');
+    var holder = document.createElement('div');
+    holder.className = 'games';
     label.innerHTML = 'My<br\/>Games';
     gameContainer.appendChild(label);
     gameContainer.id = 'gamesContainer';
@@ -304,14 +306,17 @@ var view = {
       var h4 = document.createElement('h4');
       h4.innerHTML = item.name;
       div.appendChild(h4);
-      gameContainer.appendChild(div);
+      holder.appendChild(div);
     });
+    gameContainer.appendChild(holder);
     container.appendChild(gameContainer);
   },
   displayOpenGames: function(){
         var container = document.getElementById('gameData');
     var gameContainer = document.createElement('div');
     var label = document.createElement('h3');
+    var holder = document.createElement('div');
+    holder.className = 'openGames';
     label.innerHTML = 'Open<br\/>Games';
     gameContainer.appendChild(label);
     gameContainer.id = 'openGamesContainer';
@@ -321,8 +326,9 @@ var view = {
       var h4 = document.createElement('h4');
       h4.innerHTML = item.name;
       div.appendChild(h4);
-      gameContainer.appendChild(div);
+      holder.appendChild(div);
     });
+    gameContainer.appendChild(holder);
     container.appendChild(gameContainer);
   },
   // Clears other games when game loads
@@ -352,7 +358,7 @@ var view = {
     element = game.currentGame.board[index];
       var box = document.createElement('div');
       box.id = index;
-      box.className = 'square';
+      box.className = 'square s' + index.toString();
       if (element.user === 1) {
         box.classList.add('p1');
       }

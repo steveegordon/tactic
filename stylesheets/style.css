@@ -70,6 +70,10 @@ body {
 div > h3 {
   margin-top: auto;
   margin-right: 5px;
+  color: rgb(255,255,255);
+  text-shadow: 2px 2px rgba(0,0,0,.2);
+  width: 20%;
+  display: inline;
 }
 
 .game >h4 {
@@ -77,12 +81,13 @@ div > h3 {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  color: rgb(255,255,255);
+  text-shadow: 2px 2px rgba(0,0,0,.2);
 }
 
 header {
   height: 5%;
   width: 100%;
-  background-color: rgb(96,125,139);
 }
 
 footer {
@@ -99,6 +104,8 @@ footer {
   margin: auto;
   text-align: center;
   width: 30%;
+  color: white;
+  text-shadow: 2px 2px rgba(0,0,0,.2);
 }
 
 #gameData {
@@ -123,16 +130,30 @@ footer {
   height: 100%;
   display: flex;
   flex-wrap: wrap;
+/*  border: 1px solid white;*/
+  border-radius: 10px;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 4px 4px 5px 0 rgba(0,0,0,.12);
 }
 
 #gamesContainer, #openGamesContainer {
   padding: 5px 5px;
   height: 100%;
   display: flex;
-  overflow: scroll;
-  border: 3px solid black;
+  flex-wrap: wrap;
   border-radius: 20px;
+  background-color: rgb(96,125,139);
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 4px 4px 5px 0 rgba(0,0,0,.12);
+  margin-bottom: 8px;
 }
+
+.games, .openGames {
+  height: 100%;
+  overflow: scroll;
+  display: inline-flex;
+  border-radius: 10px;
+  width: 79%;
+}
+
 #gamesContainer {
   border-bottom: 0px;
 }
@@ -141,7 +162,38 @@ footer {
   height: 33.33%;
   width: 33.33%;
   background-color: #ff4081;
-  border: 2px solid black;
+}
+
+.s0, .s1, .s2 {
+  border-bottom: 1px solid white;
+}
+
+.s6, .s7, .s8 {
+  border-top: 1px solid white;
+}
+
+.s0, .s3, .s6 {
+  border-right: 1px solid white;
+}
+
+.s2, .s5, .s8 {
+  border-left: 1px solid white;
+}
+
+.s0 {
+  border-top-left-radius: 10px;
+}
+
+.s2 {
+  border-top-right-radius: 10px;
+}
+
+.s6 {
+  border-bottom-left-radius: 10px;
+}
+
+.s8 {
+  border-bottom-right-radius: 10px;
 }
 
 div.p1 {
@@ -201,11 +253,11 @@ div#authOverlay {
   margin: 0px 2px;
   display: inline-block;
   height: 100%;
-  width: 25%;
+  width: 30%;
+  border: white solid 1px;
   background-color: #ff4081;
-  border: 2px solid black;
   border-radius: 10%;
-  box-shadow: 0 0 3px 3px #000;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.12);
 }
 
 #openGamesContainer .openGame {
