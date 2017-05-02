@@ -9,6 +9,7 @@ var game = {
   openGames: [],
   // Changes game info as long as it exists
   updateInfo: function(name, p1, p2){
+    debugger;
     if (name.length > 0){
       this.currentGame.name = name;
     }
@@ -293,13 +294,16 @@ var view = {
   displayUserGames: function(){
     var container = document.getElementById('gameData');
     var gameContainer = document.createElement('div');
+    var label = document.createElement('h3');
+    label.innerHTML = 'My<br\/>Games';
+    gameContainer.appendChild(label);
     gameContainer.id = 'gamesContainer';
     game.userGames.forEach(function(item){
       var div = document.createElement('div');
       div.className = 'game';
-      var p = document.createElement('p');
-      p.innerHTML = item.name;
-      div.appendChild(p);
+      var h4 = document.createElement('h4');
+      h4.innerHTML = item.name;
+      div.appendChild(h4);
       gameContainer.appendChild(div);
     });
     container.appendChild(gameContainer);
@@ -307,13 +311,16 @@ var view = {
   displayOpenGames: function(){
         var container = document.getElementById('gameData');
     var gameContainer = document.createElement('div');
+    var label = document.createElement('h3');
+    label.innerHTML = 'Open<br\/>Games';
+    gameContainer.appendChild(label);
     gameContainer.id = 'openGamesContainer';
     game.openGames.forEach(function(item){
       var div = document.createElement('div');
       div.className = 'openGame';
-      var p = document.createElement('p');
-      p.innerHTML = item.name;
-      div.appendChild(p);
+      var h4 = document.createElement('h4');
+      h4.innerHTML = item.name;
+      div.appendChild(h4);
       gameContainer.appendChild(div);
     });
     container.appendChild(gameContainer);
@@ -333,7 +340,7 @@ var view = {
   displayGame: function(){
     var container = document.getElementById('gameContainer');
     var gameData = document.getElementById('gameData');
-    var title = document.createElement('h1');
+    var title = document.createElement('h2');
     title.textContent = game.currentGame.name;
     var player1Data = document.createElement('div');
     player1Data.className = 'playerData';
@@ -374,7 +381,7 @@ var view = {
   },
   // Clears inputs and displays changed game name
   updateInfo: function(name, p1, p2){
-    var gameName = document.querySelector('h1');
+    var gameName = document.querySelector('h2');
     var inputs = document.querySelectorAll('input');
     inputs.forEach(function(input){
       input.value = '';
@@ -403,6 +410,7 @@ var view = {
   createStartButton: function(){
     var container = document.getElementById('gameContainer');
     var startGameButton = document.createElement('button');
+    startGameButton.className = 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent';
     startGameButton.id = 'startGameButton';
     startGameButton.textContent = 'Start Game';
     container.appendChild(startGameButton);
@@ -418,6 +426,7 @@ var view = {
   createQuitButton: function(elm){
     var quitButton = document.createElement('button');
     quitButton.id = 'quitButton';
+    quitButton.className = 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent';
     quitButton.textContent = "Quit Game";
     quitButton.onclick = function(){
       handlers.quitGame();
@@ -427,8 +436,8 @@ var view = {
   // Creates a settings button
   createSettingsButton: function(elm){
     var settingsButton = document.createElement('button');
-    settingsButton.className = 'settings';
-    settingsButton.textContent = 'Settings';
+    settingsButton.innerHTML = '<i class="material-icons">settings</i>';
+    settingsButton.className = 'settings mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored';
     settingsButton.onclick = function(){view.toggleOverlay();};
     elm.appendChild(settingsButton);
   },
@@ -437,6 +446,7 @@ var view = {
     var header = document.querySelector('header');
     var logoutButton = document.createElement('button');
     logoutButton.id = 'logout';
+    logoutButton.className = 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent';
     logoutButton.textContent = 'Logout';
     logoutButton.onclick = function(){
       handlers.logout();
@@ -460,11 +470,14 @@ var view = {
     container.addEventListener('click', function(event){
       var elementClicked = event.target;
       // If target is game, loads a game
-      if (elementClicked.className === 'game'){
+      if (elementClicked.className === 'game') {
         handlers.selectGame(elementClicked.firstChild.innerHTML, false);
       }
       if (elementClicked.className === 'openGame'){
         handlers.selectGame(elementClicked.firstChild.innerHTML, true);
+      }
+      if (elementClicked.parentNode && elementClicked.parentNode.className === 'game') {
+        handlers.selectGame(elementClicked.parentNode.firstChild.innerHTML, false);
       }
       // If target is start button, starts a game
       if (elementClicked.id === 'startGameButton'){

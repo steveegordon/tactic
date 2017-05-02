@@ -64,11 +64,25 @@ blockquote, q {
 body {
   width: 100vw;
   height: 100vh;
+  background-color: rgb(105,140,156);
+}
+
+div > h3 {
+  margin-top: auto;
+  margin-right: 5px;
+}
+
+.game >h4 {
+  margin-top: 6px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 header {
   height: 5%;
   width: 100%;
+  background-color: rgb(96,125,139);
 }
 
 footer {
@@ -81,7 +95,7 @@ footer {
   width: 100%;
 }
 
-#gameData>h1 {
+#gameData>h2 {
   margin: auto;
   text-align: center;
   width: 30%;
@@ -112,15 +126,21 @@ footer {
 }
 
 #gamesContainer, #openGamesContainer {
+  padding: 5px 5px;
   height: 100%;
   display: flex;
   overflow: scroll;
+  border: 3px solid black;
+  border-radius: 20px;
+}
+#gamesContainer {
+  border-bottom: 0px;
 }
 
 .square {
   height: 33.33%;
   width: 33.33%;
-  background-color: red;
+  background-color: #ff4081;
   border: 2px solid black;
 }
 
@@ -139,7 +159,8 @@ div#settingsOverlay {
   -webkit-transition: left 2s;
   transition: left 2s;
   left: -33%;
-  background-color: purple;
+  background-color: #555;
+  z-index: 5;
 }
 
 button#startGameButton {
@@ -176,13 +197,22 @@ div#authOverlay {
 }
 
 .game, .openGame {
+  padding: 2px;
+  margin: 0px 2px;
   display: inline-block;
   height: 100%;
-  width: 10%;
-  background-color: aqua;
+  width: 25%;
+  background-color: #ff4081;
   border: 2px solid black;
+  border-radius: 10%;
+  box-shadow: 0 0 3px 3px #000;
 }
 
 #openGamesContainer .openGame {
   background-color: purple;
+}
+
+#logout {
+  height: 90%;
+  margin: auto 5px;
 }
