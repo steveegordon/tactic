@@ -55,6 +55,20 @@ blockquote, q {
   width: 60vw;
   left: -60vw;
   }
+  div > div > h3 {
+    font-size: 1.8em;
+    width: 24%;
+    padding-top: 5%;
+  }
+  div > div > .games, .openGames {
+    width: 75%;
+  }
+  div> .game, .openGame {
+    min-width: 40%;
+  }
+  div > #board {
+/*    height: 60%;*/
+  }
 }
 
 * {
@@ -69,7 +83,7 @@ body {
 
 div > h3 {
   margin-top: auto;
-  margin-right: 5px;
+  padding-right: 5px;
   color: rgb(255,255,255);
   text-shadow: 2px 2px rgba(0,0,0,.2);
   width: 20%;
@@ -151,7 +165,7 @@ footer {
   overflow: scroll;
   display: inline-flex;
   border-radius: 10px;
-  width: 79%;
+  width: 80%;
 }
 
 #gamesContainer {
@@ -253,7 +267,7 @@ div#authOverlay {
   margin: 0px 2px;
   display: inline-block;
   height: 100%;
-  width: 30%;
+  min-width: 25%;
   border: white solid 1px;
   background-color: #ff4081;
   border-radius: 10%;
