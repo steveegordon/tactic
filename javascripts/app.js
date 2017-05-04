@@ -241,17 +241,24 @@ var handlers = {
   takeTurn: function(id, square){
     if (game.currentGame.p2 !== ''){
     if (authentication.currentUser.displayName === game.currentGame.turn){
-    if (square.classList.length === 1){
+    if (square.classList.length === 2){
       view.changeBox(square);
       game.changeBox(id);
     }
-  }
-  else {
-    console.log("Not your turn");
-  }
-  }
-  else {console.log('Waiting for Opponent');
-  }
+    else {
+      view.turnToast("Square already played");
+      console.log('square played');
+    }
+    }
+    else {
+    view.turnToast("Not your turn");
+    console.log('opponents turn');
+    }
+    }
+    else {
+    view.turnToast('Waiting for Opponent');
+    console.log('no opponent');
+    }
   },
   // Quits current game, Linked to quitGame button
   quitGame: function(logout){
@@ -352,12 +359,17 @@ var view = {
     var gameData = document.getElementById('gameData');
     var title = document.createElement('h2');
     var container = document.getElementById('container');
+    var myName = document.createElement('h4');
+    var opponentName = document.createElement('h4');
+    myName.innerHTML = authentication.currentUser.displayName;
     container.classList.add('inGame');
     title.textContent = game.currentGame.name;
     var player1Data = document.createElement('div');
     player1Data.className = 'playerData player1';
+    player1Data.appendChild(myName);
     var player2Data = document.createElement('div');
     player2Data.className = 'playerData player2';
+    player2Data.appendChild(opponentName);
     var board = document.createElement('div');
     board.id = 'board';
     for(let index in game.currentGame.board){
@@ -471,6 +483,12 @@ var view = {
     var logoutButton = document.getElementById('logout');
     header.removeChild(logoutButton);
   },
+  turnToast: function(message){
+  'use strict';
+  var snackbarContainer = document.querySelector('#demo-toast-example');
+    var data = {message: message};
+    snackbarContainer.MaterialSnackbar.showSnackbar(data);
+  },
   // Toggles the settings Overlay to be visible or not
   toggleOverlay: function(){
    document.body.classList.toggle('settingsOverlay');
@@ -496,7 +514,7 @@ var view = {
         handlers.startGame();
       }
       // If target is a square, takes a turn
-      if (elementClicked.className === 'square'){
+      if (elementClicked.classList.contains('square')){
         handlers.takeTurn(elementClicked.id, elementClicked);
       }
     });
