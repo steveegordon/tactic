@@ -292,10 +292,14 @@ var view = {
   },
   // Displays users games, run on log in and quit game
   displayUserGames: function(){
-    var container = document.getElementById('gameData');
+    var container = document.getElementById('container');
+    var gData = document.getElementById('gameData');
     var gameContainer = document.createElement('div');
     var label = document.createElement('h3');
     var holder = document.createElement('div');
+    if (container.classList.contains('inGame')){
+      container.classList.remove('inGame');
+    }
     holder.className = 'games';
     label.innerHTML = 'My<br\/>Games';
     gameContainer.appendChild(label);
@@ -309,10 +313,10 @@ var view = {
       holder.appendChild(div);
     });
     gameContainer.appendChild(holder);
-    container.appendChild(gameContainer);
+    gData.appendChild(gameContainer);
   },
   displayOpenGames: function(){
-        var container = document.getElementById('gameData');
+    var container = document.getElementById('gameData');
     var gameContainer = document.createElement('div');
     var label = document.createElement('h3');
     var holder = document.createElement('div');
@@ -344,14 +348,16 @@ var view = {
   },
   // Displays game board and data on startGame and selectGame
   displayGame: function(){
-    var container = document.getElementById('gameContainer');
+    var gContainer = document.getElementById('gameContainer');
     var gameData = document.getElementById('gameData');
     var title = document.createElement('h2');
+    var container = document.getElementById('container');
+    container.classList.add('inGame');
     title.textContent = game.currentGame.name;
     var player1Data = document.createElement('div');
-    player1Data.className = 'playerData';
+    player1Data.className = 'playerData player1';
     var player2Data = document.createElement('div');
-    player2Data.className = 'playerData';
+    player2Data.className = 'playerData player2';
     var board = document.createElement('div');
     board.id = 'board';
     for(let index in game.currentGame.board){
@@ -368,9 +374,9 @@ var view = {
       board.appendChild(box);
     }
     gameData.appendChild(title);
-    container.appendChild(player1Data);
-    container.appendChild(board);
-    container.appendChild(player2Data);
+    gContainer.appendChild(player1Data);
+    gContainer.appendChild(board);
+    gContainer.appendChild(player2Data);
     this.createSettingsButton(gameData);
     this.createQuitButton(gameData);
   },
