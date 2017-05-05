@@ -9,7 +9,6 @@ var game = {
   openGames: [],
   // Changes game info as long as it exists
   updateInfo: function(name, p1, p2){
-    debugger;
     if (name.length > 0){
       this.currentGame.name = name;
     }
@@ -177,10 +176,10 @@ var game = {
   // Gives winner a win
   addWin: function(player){
     if (player === 1){
-      this.currentGame.p1wins++;
+      this.currentGame.p2wins++;
     }
     else {
-      this.currentGame.p2wins++;
+      this.currentGame.p1wins++;
     }
   },
   quitGame: function(){
@@ -315,8 +314,17 @@ var view = {
       var div = document.createElement('div');
       div.className = 'game';
       var h4 = document.createElement('h4');
+      h4.className = 'gameTitle';
       h4.innerHTML = item.name;
+      var p = document.createElement('p');
+      if (item.p1 === authentication.currentUser.displayName){
+      p.innerHTML = 'Opponent: ' + item.p2 + '<br\/>Record: ' + item.p1wins + '-' + item.p2wins;
+      }
+      else {
+        p.innerHTML = 'Opponent: ' + item.p1 + '<br\/>Record: ' + item.p2wins + '-' + item.p1wins;
+      }
       div.appendChild(h4);
+      div.appendChild(p);
       holder.appendChild(div);
     });
     gameContainer.appendChild(holder);
@@ -335,6 +343,7 @@ var view = {
       var div = document.createElement('div');
       div.className = 'openGame';
       var h4 = document.createElement('h4');
+      h4.className = 'gameTitle';
       h4.innerHTML = item.name;
       div.appendChild(h4);
       holder.appendChild(div);
@@ -361,6 +370,17 @@ var view = {
     var container = document.getElementById('container');
     var myName = document.createElement('h4');
     var opponentName = document.createElement('h4');
+    if (game.currentGame.p2 !== ''){
+      if (game.currentGame.p2 === authentication.currentUser.displayName){
+        opponentName.innerHTML = game.currentGame.p1;
+      }
+      else {
+        opponentName.innerHTML = game.currentGame.p2;
+      }
+    }
+    else {
+      opponentName.innerHTML = 'No Opponent';
+    }
     myName.innerHTML = authentication.currentUser.displayName;
     container.classList.add('inGame');
     title.textContent = game.currentGame.name;
