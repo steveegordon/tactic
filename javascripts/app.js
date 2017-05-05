@@ -204,6 +204,7 @@ var handlers = {
   },
   loadUser: function(user){
       view.toggleAuthOverlay(true);
+      view.showTitle();
       view.createStartButton();
       view.displayUserData();
   },
@@ -227,6 +228,7 @@ var handlers = {
   // Creates a new game, linked to start button
   startGame: function(){
     authentication.inGame = true;
+    view.removeTitle();
     view.removeStartButton();
     view.removeUserGames();
     game.createGame();
@@ -265,6 +267,7 @@ var handlers = {
     var board = document.getElementById('board');
     game.quitGame();
     view.quitGame();
+    view.showTitle();
     view.createStartButton();
     if (logout !== true){
     this.loadGames();
@@ -284,6 +287,7 @@ var handlers = {
   selectGame: function(picked, answer){
     authentication.inGame = true;
     var startbutton = document.getElementById('startGameButton');
+    view.removeTitle();
     view.removeStartButton();
     view.removeUserGames();
     game.selectGame(picked, answer);
@@ -345,7 +349,10 @@ var view = {
       var h4 = document.createElement('h4');
       h4.className = 'gameTitle';
       h4.innerHTML = item.name;
+      var p = document.createElement('p');
+      p.innerHTML = 'Opponent: ' + item.p1;
       div.appendChild(h4);
+      div.appendChild(p);
       holder.appendChild(div);
     });
     gameContainer.appendChild(holder);
@@ -502,6 +509,17 @@ var view = {
     var header = document.querySelector('header');
     var logoutButton = document.getElementById('logout');
     header.removeChild(logoutButton);
+  },
+  removeTitle: function(){
+    var container = document.getElementById('container');
+    var header = document.querySelector('h1');
+    container.removeChild(header);
+  },
+  showTitle: function(){
+    var container = document.getElementById('container');
+    var header = document.createElement('h1');
+    header.innerHTML = 'TACTIC';
+    container.insertBefore(header, container.firstChild);
   },
   turnToast: function(message){
   'use strict';
