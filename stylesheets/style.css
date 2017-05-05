@@ -50,6 +50,13 @@ blockquote, q {
 
 /*CSS Markup*/
 
+@media screen and (min-width: 800px) {
+  body {
+    width: 800px;
+    padding:0 calc((100vw - 800px)/2);
+  }
+}
+
 @media screen and (max-width: 600px){
   body > div#settingsOverlay {
   width: 60vw;
@@ -356,6 +363,7 @@ div#authOverlay {
 #openGamesContainer .openGame {
   background-color: purple;
 }
+
 
 #logout {
   height: 90%;
