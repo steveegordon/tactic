@@ -267,10 +267,10 @@ var handlers = {
     var board = document.getElementById('board');
     game.quitGame();
     view.quitGame();
-    view.showTitle();
     view.createStartButton();
     if (logout !== true){
     this.loadGames();
+    view.showTitle();
     }
   },
   // Logs currentUser out, Linked to logout button
@@ -279,6 +279,7 @@ var handlers = {
     game.userGames = [];
     game.openGames = [];
     authentication.signOut();
+    view.removeTitle();
     view.removeStartButton();
     view.removeUserGames();
     view.removeLogoutButton();
@@ -377,6 +378,8 @@ var view = {
     var container = document.getElementById('container');
     var myName = document.createElement('h4');
     var opponentName = document.createElement('h4');
+    myName.className = 'playerName';
+    opponentName.className = 'playerName';
     if (game.currentGame.p2 !== ''){
       if (game.currentGame.p2 === authentication.currentUser.displayName){
         opponentName.innerHTML = game.currentGame.p1;
@@ -642,8 +645,9 @@ var authentication = {
           });
           }
         });
-      }
+     }
       else {
+        console.log('loggedOut');
         authentication.currentUser = null;
         handlers.logIn();
       }

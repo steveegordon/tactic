@@ -82,6 +82,8 @@ blockquote, q {
     height: 18%;
     margin-top: 0;
     margin-bottom: 2%;
+    display: flex;
+    align-items: center;
   }
   .player1 {
     margin-left: 1%;
@@ -100,6 +102,9 @@ blockquote, q {
     height: 80%;
     width: 96%;
     margin: 0 2%;
+  }
+  div > .playerName {
+    width: 100%;
   }
 }
 
