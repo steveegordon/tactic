@@ -94,8 +94,8 @@ var game = {
       game.findOpenGames(user);
   },
   findOpenGames: function(user){
-      openGamesRef = firebase.database().ref("games").orderByChild("p2").equalTo("");
-      openGamesRef.on('child_added', function(snapshot){
+      this.openGamesRef = firebase.database().ref("games").orderByChild("p2").equalTo("");
+      this.openGamesRef.on('child_added', function(snapshot){
         console.log(snapshot.val().p1);
         console.log(authentication.currentUser);
         if (snapshot.val()){
@@ -108,7 +108,7 @@ var game = {
           handlers.loadNewGames();
         }
         }); 
-      openGamesRef.on('child_removed', function(removedSnapshot){
+      this.openGamesRef.on('child_removed', function(removedSnapshot){
         game.openGames.forEach(function(openGame, index){
           if (openGame.name === removedSnapshot.val().name){
             game.openGames.splice(index, 1);
