@@ -213,7 +213,7 @@ var game = {
   },
   // Gives winner a win
   addWin: function(player){
-    if (player === game.currentGame.p1){
+    if (player === game.currentGame.p2){
       this.currentGame.p2wins++;
     }
     else {
