@@ -349,7 +349,6 @@ button.settings {
 }
 button#quitButton {
   float: left;
-  margin-top: 10px;
 }
 
 div#authOverlay {

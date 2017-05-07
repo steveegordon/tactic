@@ -458,6 +458,7 @@ var view = {
     gContainer.appendChild(board);
     gContainer.appendChild(player2Data);
     this.createSettingsButton(gameData);
+    // this.createScoreboard(gameData);
     this.createQuitButton(gameData);
   },
   // Removes game board on quit
@@ -518,12 +519,21 @@ var view = {
   createQuitButton: function(elm){
     var quitButton = document.createElement('button');
     quitButton.id = 'quitButton';
-    quitButton.className = 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent';
-    quitButton.textContent = "Quit Game";
+    quitButton.className = 'mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored';
+    quitButton.innerHTML = '<i class="material-icons">exit_to_app</i>';
     quitButton.onclick = function(){
       handlers.quitGame();
     };
     elm.appendChild(quitButton);
+  },
+  createScoreboard: function(elm){
+    var scoreboard = document.createElement('div');
+    var score = document.createElement('h4');
+    scoreboard.className = 'scoreboard';
+    score.className = 'score';
+    score.innerHTML = game.currentGame.p1wins + ' - ' + game.currentGame.draws + ' - ' + game.currentGame.p2wins;
+    scoreboard.appendChild(score);
+    elm.appendChild(scoreboard);
   },
   // Creates a settings button
   createSettingsButton: function(elm){
