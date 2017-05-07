@@ -35,6 +35,7 @@ var game = {
       p2: '',
       p1wins: 0,
       p2wins: 0,
+      draws: 0,
       name: gameId,
     };
     for (var i = 0; i < 9; i++){
@@ -96,10 +97,7 @@ var game = {
   findOpenGames: function(user){
       this.openGamesRef = firebase.database().ref("games").orderByChild("p2").equalTo("");
       this.openGamesRef.on('child_added', function(snapshot){
-        console.log(snapshot.val().p1);
-        console.log(authentication.currentUser);
         if (snapshot.val()){
-          console.log(snapshot.val().p1);
         if (snapshot.val().p1 !== authentication.currentUser.displayName){
           game.openGames.push(snapshot.val());
         }
@@ -131,8 +129,6 @@ var game = {
         firebase.database().ref("games").orderByChild("name").equalTo(name.toString())
         .once('value', function(snapshot){
         gameId = Object.keys(snapshot.val()).toString();
-        console.log(gameId);
-        // game.currentGame = snapshot.child(gameId).val();
         game.currentGameRef = firebase.database().ref('/games/' + gameId);
         resolve(game.currentGameRef);
       });
@@ -208,6 +204,7 @@ var game = {
       this.addWin(player);
       handlers.resetGame();}
     else if (this.currentGame.totalTurn === 9){confirm("Cats Game. Play again?");
+      this.currentGame.draws++;
       handlers.resetGame();}
     this.currentGameRef.update(this.currentGame);
   },
@@ -296,17 +293,14 @@ var handlers = {
     }
     else {
       view.turnToast("Square already played");
-      console.log('square played');
     }
     }
     else {
     view.turnToast("Not your turn");
-    console.log('opponents turn');
     }
     }
     else {
     view.turnToast('Waiting for Opponent');
-    console.log('no opponent');
     }
   },
   // Quits current game, Linked to quitGame button
@@ -675,6 +669,8 @@ var authentication = {
   initialize: function(){
     firebase.initializeApp(this.config);
     firebase.auth().onAuthStateChanged(function(user){
+      console.log('initialized');
+      if (authentication.userRef === null){
       if (user) {
           game.gamesRef = firebase.database().ref('/games');
           authentication.currentUser = user;
@@ -688,7 +684,9 @@ var authentication = {
             console.log('creating user');
             authentication.userRef.set({
             name: user.displayName,
-            games: []
+            wins: 0,
+            losses: 0,
+            draws: 0,
           });
           }
         });
@@ -697,6 +695,7 @@ var authentication = {
         console.log('loggedOut');
         authentication.currentUser = null;
         handlers.logIn();
+      }
       }
     });
   },
