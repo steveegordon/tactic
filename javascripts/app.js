@@ -166,7 +166,7 @@ var game = {
     var square = this.currentGame.board[number];
     var playerTurn = this.currentGame.turn;
     if (square.user === 0){
-      if (playerTurn === this.currentGame.p1 && this.userPosition === 1){
+      if (playerTurn === this.currentGame.p1){
         square.user = 1;
         this.currentGame.turn = this.currentGame.p2;
         this.currentGame.totalTurn++;
@@ -213,7 +213,7 @@ var game = {
   },
   // Gives winner a win
   addWin: function(player){
-    if (player === 1){
+    if (player === game.currentGame.p1){
       this.currentGame.p2wins++;
     }
     else {
@@ -425,30 +425,25 @@ var view = {
     var gameData = document.getElementById('gameData');
     var title = document.createElement('h2');
     var container = document.getElementById('container');
-    var myName = document.createElement('h4');
-    var opponentName = document.createElement('h4');
-    myName.className = 'playerName';
-    opponentName.className = 'playerName';
+    var p1Name = document.createElement('h4');
+    var p2Name = document.createElement('h4');
+    p1Name.className = 'playerName';
+    p2Name.className = 'playerName';
+    p1Name.innerHTML = game.currentGame.p1;
     if (game.currentGame.p2 !== ''){
-      if (game.currentGame.p2 === authentication.currentUser.displayName){
-        opponentName.innerHTML = game.currentGame.p1;
-      }
-      else {
-        opponentName.innerHTML = game.currentGame.p2;
-      }
+      p2Name.innerHTML = game.currentGame.p2;
     }
     else {
-      opponentName.innerHTML = 'No Opponent';
+      p2Name.innerHTML = 'No Opponent';
     }
-    myName.innerHTML = authentication.currentUser.displayName;
     container.classList.add('inGame');
     title.textContent = game.currentGame.name;
     var player1Data = document.createElement('div');
     player1Data.className = 'playerData player1';
-    player1Data.appendChild(myName);
+    player1Data.appendChild(p1Name);
     var player2Data = document.createElement('div');
     player2Data.className = 'playerData player2';
-    player2Data.appendChild(opponentName);
+    player2Data.appendChild(p2Name);
     var board = document.createElement('div');
     board.id = 'board';
     for(let index in game.currentGame.board){
