@@ -106,6 +106,9 @@ blockquote, q {
   div > .playerName {
     width: 100%;
   }
+  div > div.openGame > p, div > div.game > p {
+    line-height: 20px;
+  }
 }
 
 * {
@@ -137,13 +140,17 @@ div > h3 {
 }
 
  .game > .gameTitle, .openGame > .gameTitle {
-  height: 33%;
+  height: 40%;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical; 
   margin: 0 auto;
   text-align: center;
   color: rgb(255,255,255);
+  width: 100%;
   text-shadow: 2px 2px rgba(0,0,0,.2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 div > h4 {
@@ -154,21 +161,24 @@ div > h4 {
 }
 
 div > p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0;
   color: white;
   width: 100%;
-  height: 67%;
+  height: 60%;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical; 
 }
 
 header {
-  height: 5%;
+  height: 7.5%;
   width: 100%;
 }
 
 footer {
-  height: 10%;
+  height: 7.5%;
   width: 100%;
 }
 
@@ -296,11 +306,13 @@ footer {
 }
 
 div.p1 {
-  background-color: rgb(153,50,204);
+  background-color: rgb(153,50,204) !important;
+  cursor: default !important;
 }
 
 div.p2 {
-  background-color: #0FDDAF;
+  background-color: #0FDDAF !important;
+  cursor: default !important;
 }
 
 
@@ -350,12 +362,14 @@ div#authOverlay {
 }
 
 .game, .openGame {
-  white-space: nowrap;
+/*  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis;*/
   padding: 2px;
   margin: 0px 2px;
-  display: inline-block;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   height: 100%;
   min-width: 25%;
   max-width: 25%;
@@ -366,11 +380,25 @@ div#authOverlay {
 }
 
 #openGamesContainer .openGame {
-  background-color: purple;
+  background-color: rgb(153,50,204);
+}
+
+#openGamesContainer .openGame:hover {
+  cursor: pointer;
+  background-color: rgb(138,45,184);
+}
+
+#gamesContainer .game:hover {
+  cursor: pointer;
+  background-color: rgb(229,58,116);
+}
+
+.square:hover {
+  background-color: rgb(229,58,116);
+  cursor: pointer;
 }
 
 
 #logout {
-  height: 90%;
-  margin: auto 5px;
+  margin: 2% 2%;
 }

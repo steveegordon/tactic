@@ -323,10 +323,10 @@ var view = {
       h4.innerHTML = item.name;
       var p = document.createElement('p');
       if (item.p1 === authentication.currentUser.displayName){
-      p.innerHTML = 'Opponent: ' + item.p2 + '<br\/>Record: ' + item.p1wins + '-' + item.p2wins;
+      p.innerHTML = 'VS. ' + item.p2 + '<br\/>Record: ' + item.p1wins + '-' + item.p2wins;
       }
       else {
-        p.innerHTML = 'Opponent: ' + item.p1 + '<br\/>Record: ' + item.p2wins + '-' + item.p1wins;
+        p.innerHTML = 'VS. ' + item.p1 + '<br\/>Record: ' + item.p2wins + '-' + item.p1wins;
       }
       div.appendChild(h4);
       div.appendChild(p);
@@ -351,7 +351,7 @@ var view = {
       h4.className = 'gameTitle';
       h4.innerHTML = item.name;
       var p = document.createElement('p');
-      p.innerHTML = 'Opponent: ' + item.p1;
+      p.innerHTML = 'VS. ' + item.p1;
       div.appendChild(h4);
       div.appendChild(p);
       holder.appendChild(div);
