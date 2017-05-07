@@ -4,7 +4,11 @@ var game = {
   gamesRef: null,
   games: [],
   currentGameRef: null,
+  allp1GamesRef: null,
+  allp2GamesRef: null,
+  openGamesRef: null,
   currentGame: null,
+  userPosition: null,
   userGames: [],
   openGames: [],
   // Changes game info as long as it exists
@@ -43,6 +47,7 @@ var game = {
       game.currentGameRef = firebase.database().ref('/games/' + gameId);
       game.currentGameRef.on('value', function(snapshot){
         game.currentGame = snapshot.toJSON();
+        game.setPosition();
         view.quitGame();
         view.displayGame(this.currentGame);
       });
@@ -50,25 +55,47 @@ var game = {
   },
   // Searches through games array and finds users games
   findUserGames: function(user){
-    var allp1Games = firebase.database().ref("games").orderByChild("p1").equalTo(user.displayName);
-    var allp2Games = firebase.database().ref("games").orderByChild("p2").equalTo(user.displayName);
-      allp1Games.on('child_added', function(snapshot){
+     this.allp1GamesRef = firebase.database().ref("games").orderByChild("p1").equalTo(user.displayName);
+     this.allp2GamesRef = firebase.database().ref("games").orderByChild("p2").equalTo(user.displayName);
+      this.allp1GamesRef.on('child_added', function(snapshot){
         game.userGames.push(snapshot.val());
         if (authentication.inGame === false){
           handlers.loadNewGames();
         }
       });
-      allp2Games.on('child_added', function(snapshot){
+      this.allp2GamesRef.on('child_added', function(snapshot){
         game.userGames.push(snapshot.val());
         if (authentication.inGame === false){
           handlers.loadNewGames();
         }
       });
+
+      // /////////////////CurrentTo Fix //////////////////////////////////
+      this.allp2GamesRef.on('value', function(snapshot){
+          snapshot.forEach(function(childSnapshot){
+            game.userGames.forEach(function(instance, index){
+              if (childSnapshot.val().name === instance.name){
+                game.userGames[index] = childSnapshot.val();
+              }
+            });
+        });
+      });
+      this.allp1GamesRef.on('value', function(snapshot){
+          snapshot.forEach(function(childSnapshot){
+            game.userGames.forEach(function(instance, index){
+              if (childSnapshot.val().name === instance.name){
+                game.userGames[index] = childSnapshot.val();
+              }
+            });
+        });
+      });
+      // /////////////////////////////////////////////////////////////////
+
       game.findOpenGames(user);
   },
   findOpenGames: function(user){
-    var findGames = firebase.database().ref("games").orderByChild("p2").equalTo("");
-      findGames.on('child_added', function(snapshot){
+      openGamesRef = firebase.database().ref("games").orderByChild("p2").equalTo("");
+      openGamesRef.on('child_added', function(snapshot){
         console.log(snapshot.val().p1);
         console.log(authentication.currentUser);
         if (snapshot.val()){
@@ -81,13 +108,21 @@ var game = {
           handlers.loadNewGames();
         }
         }); 
-      findGames.on('child_removed', function(removedSnapshot){
+      openGamesRef.on('child_removed', function(removedSnapshot){
         game.openGames.forEach(function(openGame, index){
           if (openGame.name === removedSnapshot.val().name){
             game.openGames.splice(index, 1);
           }
         });
       });
+  },
+  setPosition: function(){
+    if (this.currentGame.p1 === authentication.currentUser.displayName){
+      this.userPosition = 1;
+    }
+    else {
+      this.userPosition = 2;
+    }
   },
   // Sets game by name to currentGame
   selectGame: function(name, setP2){
@@ -106,8 +141,11 @@ var game = {
           if (setP2 === true){
           val.child("p2").set(authentication.currentUser.displayName);
          }
+         else {
+         }
           val.on('value', function(snapshot){
             game.currentGame = snapshot.toJSON();
+            game.setPosition();
             view.quitGame();
             view.displayGame(this.currentGame);
           });
@@ -128,7 +166,7 @@ var game = {
     var square = this.currentGame.board[number];
     var playerTurn = this.currentGame.turn;
     if (square.user === 0){
-      if (playerTurn === this.currentGame.p1){
+      if (playerTurn === this.currentGame.p1 && this.userPosition === 1){
         square.user = 1;
         this.currentGame.turn = this.currentGame.p2;
         this.currentGame.totalTurn++;
@@ -184,11 +222,21 @@ var game = {
   },
   quitGame: function(){
     if (this.currentGame === true){
+    this.userPosition = null;
     this.currentGameRef.off();
     this.currentGame = null;
     this.currentGameRef = null;
-  }
-}
+    }
+    },
+
+  logout: function(){
+    this.allp1GamesRef.off();
+    this.allp2GamesRef.off();
+    this.openGamesRef.off();
+    this.allp1GamesRef = null;
+    this.allp2GamesRef = null;
+    this.openGamesRef = null;
+  },
 };
 // Object controls major actions
 var handlers = {
@@ -276,6 +324,7 @@ var handlers = {
   // Logs currentUser out, Linked to logout button
   logout: function(){
     this.quitGame(true);
+    game.logout();
     game.userGames = [];
     game.openGames = [];
     authentication.signOut();
@@ -549,6 +598,9 @@ var view = {
       }
       if (elementClicked.parentNode && elementClicked.parentNode.className === 'game') {
         handlers.selectGame(elementClicked.parentNode.firstChild.innerHTML, false);
+      }
+      if (elementClicked.parentNode && elementClicked.parentNode.className === 'openGame') {
+        handlers.selectGame(elementClicked.parentNode.firstChild.innerHTML, true);
       }
       // If target is start button, starts a game
       if (elementClicked.id === 'startGameButton'){
