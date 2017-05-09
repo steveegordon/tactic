@@ -487,8 +487,10 @@ var view = {
   updateInfo: function(name, p1, p2){
     var gameName = document.querySelector('h2');
     var inputs = document.querySelectorAll('input');
-    inputs.forEach(function(input){
+    inputs.forEach(function(input, index){
+      if (index < 3) {
       input.value = '';
+      }
     });
     gameName.textContent = name;
     this.toggleOverlay();
@@ -505,7 +507,6 @@ var view = {
   },
   // Resets all boxes to show neutral
   resetBoxes: function(){
-    debugger;
     var boxes = document.querySelectorAll('div.square');
     boxes.forEach(function(box){
       box.classList.remove('p1', 'p2');
