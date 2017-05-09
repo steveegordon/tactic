@@ -76,7 +76,7 @@ var game = {
       this.allp2GamesRef.on('value', function(snapshot){
           snapshot.forEach(function(childSnapshot){
             game.userGames.forEach(function(instance, index){
-              if (childSnapshot.val().name === instance.name){
+              if (childSnapshot.val().gameId === instance.gameId){
                 game.userGames[index] = childSnapshot.val();
               }
             });
@@ -85,7 +85,7 @@ var game = {
       this.allp1GamesRef.on('value', function(snapshot){
           snapshot.forEach(function(childSnapshot){
             game.userGames.forEach(function(instance, index){
-              if (childSnapshot.val().name === instance.name){
+              if (childSnapshot.val().gameId === instance.gameId){
                 game.userGames[index] = childSnapshot.val();
               }
             });
@@ -622,6 +622,9 @@ var view = {
     this.eventListeners = true;
     }
   },
+  toggleOverlay: function(){
+    document.body.classList.toggle('settingsOverlay');
+  }
 };
 
 
