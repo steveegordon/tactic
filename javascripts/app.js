@@ -37,6 +37,7 @@ var game = {
       p2wins: 0,
       draws: 0,
       name: gameId,
+      gameId: gameId
     };
     for (var i = 0; i < 9; i++){
       newGame.board.push({
@@ -126,9 +127,10 @@ var game = {
   selectGame: function(name, setP2){
       var gameId = null;
       var finder = new Promise(function(resolve, reject){
-        firebase.database().ref("games").orderByChild("name").equalTo(name.toString())
+        firebase.database().ref("games").orderByKey().equalTo(name.toString())
         .once('value', function(snapshot){
         gameId = Object.keys(snapshot.val()).toString();
+        console.log(gameId);
         game.currentGameRef = firebase.database().ref('/games/' + gameId);
         resolve(game.currentGameRef);
       });
@@ -248,7 +250,6 @@ var handlers = {
       view.setUpEventListeners();
   },
   loadUser: function(user){
-      view.toggleAuthOverlay(true);
       view.showTitle();
       view.createStartButton();
       view.displayUserData();
@@ -309,22 +310,24 @@ var handlers = {
     var board = document.getElementById('board');
     game.quitGame();
     view.quitGame();
-    view.createStartButton();
     if (logout !== true){
+    view.createStartButton();
     this.loadGames();
     view.showTitle();
     }
   },
   // Logs currentUser out, Linked to logout button
   logout: function(){
+    if (authentication.inGame === false) {
+    view.removeTitle();
+    view.removeStartButton();
+    view.removeUserGames();
+    }
     this.quitGame(true);
     game.logout();
     game.userGames = [];
     game.openGames = [];
     authentication.signOut();
-    view.removeTitle();
-    view.removeStartButton();
-    view.removeUserGames();
     view.removeLogoutButton();
   },
   // Selects game from games, run on startGame and view.setUpEventListeners
@@ -359,6 +362,9 @@ var view = {
     gameContainer.appendChild(label);
     gameContainer.id = 'gamesContainer';
     game.userGames.forEach(function(item){
+      var thisGame = document.createElement('div');
+      thisGame.className = 'hidden';
+      thisGame.innerHTML = item.gameId;
       var div = document.createElement('div');
       div.className = 'game';
       var h4 = document.createElement('h4');
@@ -371,6 +377,7 @@ var view = {
       else {
         p.innerHTML = 'VS. ' + item.p1 + '<br\/>Record: ' + item.p2wins + '-' + item.p1wins;
       }
+      div.appendChild(thisGame);
       div.appendChild(h4);
       div.appendChild(p);
       holder.appendChild(div);
@@ -388,6 +395,9 @@ var view = {
     gameContainer.appendChild(label);
     gameContainer.id = 'openGamesContainer';
     game.openGames.forEach(function(item){
+      var thisGame = document.createElement('div');
+      thisGame.className = 'hidden';
+      thisGame.innerHTML = item.gameId;
       var div = document.createElement('div');
       div.className = 'openGame';
       var h4 = document.createElement('h4');
@@ -395,6 +405,7 @@ var view = {
       h4.innerHTML = item.name;
       var p = document.createElement('p');
       p.innerHTML = 'VS. ' + item.p1;
+      div.appendChild(thisGame);
       div.appendChild(h4);
       div.appendChild(p);
       holder.appendChild(div);
@@ -494,6 +505,7 @@ var view = {
   },
   // Resets all boxes to show neutral
   resetBoxes: function(){
+    debugger;
     var boxes = document.querySelectorAll('div.square');
     boxes.forEach(function(box){
       box.classList.remove('p1', 'p2');
@@ -578,10 +590,6 @@ var view = {
     var data = {message: message};
     snackbarContainer.MaterialSnackbar.showSnackbar(data);
   },
-  // Toggles the settings Overlay to be visible or not
-  toggleOverlay: function(){
-   document.body.classList.toggle('settingsOverlay');
-  },
   // Sets up Event listeners
   setUpEventListeners: function(){
     if (this.eventListeners === false){
@@ -614,52 +622,6 @@ var view = {
     this.eventListeners = true;
     }
   },
-  // Toggles login page
-  toggleAuthOverlay: function(answer){
-    if (true){
-      document.body.removeChild(document.body.firstChild);
-    }
-    else {
-      if (document.body.firstChild.id != 'authOverlay'){
-        var authOverlay = document.createElement('div');
-        var input1 = document.createElement('input');
-        var input2 = document.createElement('input');
-        var input3 = document.createElement('input');
-        var input4 = document.createElement('input');
-        var inputdiv = document.createElement('div');
-        var form = document.createElement('form');
-        authOverlay.id = 'authOverlay';
-        input1.name = 'name';
-        input2.name = 'password';
-        input3.value = 'Log In';
-        input3.type = 'submit';
-        input4.value = 'Create User';
-        input4.type = 'button';
-        input1.className = 'authInput';
-        input2.className = 'authInput';
-        input3.className = 'authInput';
-        input4.className = 'authInput';
-        form.id = 'authForm';
-        form.appendChild(input1);
-        form.appendChild(input2);
-        form.appendChild(input3);
-        form.appendChild(input4);
-        authOverlay.appendChild(form);
-        input4.onclick = function(){
-          var name = input1.value;
-          var password = input2.value;
-          handlers.newUser(name, password);
-        };
-        form.onsubmit = function(){
-          var name = input1.value;
-          var password = input2.value;
-          handlers.logIn(name, password);
-          return false;
-        };
-        document.body.insertBefore(authOverlay, document.body.firstChild);
-      }
-    }
-  }
 };
 
 
@@ -680,8 +642,9 @@ var authentication = {
     firebase.initializeApp(this.config);
     firebase.auth().onAuthStateChanged(function(user){
       console.log('initialized');
-      if (authentication.userRef === null){
+      //////// maybe here ///////
       if (user) {
+        if (authentication.userRef === null) {
           game.gamesRef = firebase.database().ref('/games');
           authentication.currentUser = user;
           authentication.usersRef = firebase.database().ref('/users');
@@ -700,12 +663,12 @@ var authentication = {
           });
           }
         });
+        }
      }
       else {
         console.log('loggedOut');
         authentication.currentUser = null;
         handlers.logIn();
-      }
       }
     });
   },
@@ -714,6 +677,7 @@ var authentication = {
     firebase.auth().signInWithPopup(provider);
   },
   signOut: function(){
+    authentication.userRef = null;
     firebase.auth().signOut();
   },
   // Creates a new user and adds it to users array
