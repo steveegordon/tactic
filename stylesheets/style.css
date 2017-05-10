@@ -114,7 +114,7 @@ blockquote, q {
 }
 
 div > h1 {
-  margin: calc(80%/25) auto;
+  margin: 0 auto calc(80%/25) auto;
   height: 15%;
   text-align: center;
   color: white;
@@ -230,8 +230,8 @@ footer {
 
 #gameContainer {
   width: 100%;
-  min-height: 44%;
-  height: 44%;
+  min-height: 48%;
+  height: 48%;
   display: flex;
   flex-wrap: wrap;
 }
